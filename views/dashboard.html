@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Chamados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1F6;
+    --card:#FFFFFF;
+    --ink:#1C2333;
+    --muted:#6E7788;
+    --line:#DCE1EA;
+    --accent:#245B57;
+    --accent-ink:#F3FAF9;
+    --stamp-red:#B7402F;
+    --stamp-amber:#AD7B1B;
+    --stamp-green:#2E7D52;
+    --stamp-red-bg:#FBEAE7;
+    --stamp-amber-bg:#FBF2DF;
+    --stamp-green-bg:#E7F3EC;
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    min-height:100vh;
+  }
+
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------------- Shell ---------------- */
+  .shell{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar{
+    background:var(--ink);
+    color:#E7EAF0;
+    padding:22px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 6px;
+  }
+
+  .brand .tag{
+    width:32px; height:32px;
+    background:var(--accent);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    color:#fff;
+    flex-shrink:0;
+  }
+
+  .brand strong{font-size:15px; letter-spacing:.01em;}
+  .brand small{display:block; font-size:11px; color:#9AA3B5;}
+
+  nav.nav-list{display:flex; flex-direction:column; gap:2px;}
+
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:13.5px;
+    color:#C2C9D6;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .nav-item svg{width:16px; height:16px; flex-shrink:0;}
+  .nav-item.active{background:rgba(255,255,255,.08); color:#fff;}
+  .nav-item:hover{background:rgba(255,255,255,.06); color:#fff;}
+
+  .sidebar-footer{
+    margin-top:auto;
+    font-size:11px;
+    color:#6E7788;
+    padding:0 6px;
+    line-height:1.5;
+  }
+
+  /* ---------------- Main ---------------- */
+  .main{padding:26px 32px 60px;}
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:26px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  .topbar h1{font-size:20px; font-weight:700;}
+  .topbar p{font-size:13px; color:var(--muted); margin-top:2px;}
+
+  .search{
+    display:flex; align-items:center; gap:8px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 14px;
+    width:260px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .search input{border:none; outline:none; background:transparent; font:inherit; color:var(--ink); width:100%;}
+  .search svg{width:15px; height:15px; flex-shrink:0;}
+
+  .btn{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    border-radius:9px;
+    padding:10px 16px;
+    cursor:pointer;
+    border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .1s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:#1D4B48;}
+  .btn-ghost{background:var(--card); color:var(--ink); border-color:var(--line);}
+  .btn-ghost:hover{background:#F5F7FA;}
+  .btn svg{width:15px; height:15px;}
+
+  /* ---------------- Stats ---------------- */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:16px;
+    margin-bottom:28px;
+  }
+
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .stat-card .num{font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700;}
+  .stat-card .lbl{font-size:12.5px; color:var(--muted); margin-top:4px; letter-spacing:.02em;}
+  .stat-card .bar{position:absolute; left:0; top:0; bottom:0; width:4px;}
+  .bar-red{background:var(--stamp-red);}
+  .bar-amber{background:var(--stamp-amber);}
+  .bar-green{background:var(--stamp-green);}
+  .bar-ink{background:var(--ink);}
+
+  /* ---------------- Tickets list ---------------- */
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .section-head h2{font-size:15px; font-weight:700;}
+  .section-head span{font-size:12.5px; color:var(--muted);}
+
+  .filters{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+  .chip{
+    font-size:12px; padding:6px 12px; border-radius:999px;
+    border:1px solid var(--line); background:var(--card); color:var(--muted);
+    cursor:pointer;
+  }
+  .chip.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  .ticket-list{display:flex; flex-direction:column; gap:12px;}
+
+  .ticket-slip{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    display:grid;
+    grid-template-columns:120px 1fr auto;
+    align-items:center;
+    gap:18px;
+    padding:16px 20px;
+    position:relative;
+  }
+
+  .ticket-slip::before{
+    content:'';
+    position:absolute;
+    left:100px; top:10px; bottom:10px;
+    border-left:2px dashed var(--line);
+  }
+  .ticket-slip::after,
+  .ticket-slip .notch-bottom{
+    content:'';
+    position:absolute;
+    left:92px;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--bg);
+    border:1px solid var(--line);
+  }
+  .ticket-slip::after{top:-9px;}
+  .ticket-slip .notch-bottom{bottom:-9px;}
+
+  .ticket-id{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--muted);
+  }
+  .ticket-id .num{display:block; font-size:16px; color:var(--ink); margin-top:2px;}
+
+  .ticket-main .title{font-size:14.5px; font-weight:600; margin-bottom:5px;}
+  .ticket-main .desc{font-size:12.5px; color:var(--muted); max-width:520px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  .ticket-meta{display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; align-items:center;}
+
+  .tag{
+    font-size:11px; font-weight:600; padding:4px 9px; border-radius:6px;
+    background:#F1F3F7; color:var(--muted);
+    display:inline-flex; align-items:center;
+  }
+
+  .stamp{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:6px; border:1.5px solid currentColor;
+    transform:rotate(-2deg);
+  }
+  .stamp-aberto{color:var(--stamp-red); background:var(--stamp-red-bg);}
+  .stamp-andamento{color:var(--stamp-amber); background:var(--stamp-amber-bg);}
+  .stamp-resolvido{color:var(--stamp-green); background:var(--stamp-green-bg);}
+
+  .priority-dot{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px;}
+  .pr-baixa{background:#7C93A8;}
+  .pr-media{background:#C99A2E;}
+  .pr-alta{background:#D06A34;}
+  .pr-urgente{background:var(--stamp-red);}
+
+  .ticket-side{display:flex; flex-direction:column; align-items:flex-end; gap:8px; text-align:right;}
+  .ticket-side .date{font-size:11.5px; color:var(--muted);}
+  .attach-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11.5px; color:var(--muted);
+    background:#F1F3F7; padding:5px 9px; border-radius:7px;
+    cursor:pointer;
+  }
+  .attach-badge svg{width:13px; height:13px;}
+
+  @media (max-width:760px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{flex-direction:row; align-items:center; overflow-x:auto; padding:14px 16px;}
+    .sidebar-footer{display:none;}
+    nav.nav-list{flex-direction:row;}
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .ticket-slip{grid-template-columns:1fr; }
+    .ticket-slip::before, .ticket-slip::after, .ticket-slip .notch-bottom{display:none;}
+    .ticket-side{align-items:flex-start; text-align:left;}
+  }
+
+  /* ---------------- Modal ---------------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(15,18,26,.55);
+    display:none; align-items:center; justify-content:center;
+    padding:24px; z-index:50;
+  }
+  .overlay.open{display:flex;}
+
+  .modal{
+    background:var(--card);
+    width:100%; max-width:560px;
+    border-radius:16px;
+    max-height:88vh;
+    overflow-y:auto;
+    box-shadow:0 30px 70px rgba(10,15,25,.35);
+  }
+
+  .modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 24px;
+    border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:var(--card);
+  }
+  .modal-head h3{font-size:16px; font-weight:700;}
+  .modal-head p{font-size:12px; color:var(--muted); margin-top:2px;}
+  .close-btn{
+    width:30px; height:30px; border-radius:8px; border:1px solid var(--line);
+    background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .close-btn svg{width:14px; height:14px;}
+
+  .modal-body{padding:22px 24px 24px; display:flex; flex-direction:column; gap:16px;}
+
+  .field label{
+    display:block; font-size:12.5px; font-weight:600; margin-bottom:6px; color:var(--ink);
+  }
+  .field .hint{font-size:11px; color:var(--muted); font-weight:400; margin-top:4px;}
+
+  .field input[type=text],
+  .field textarea,
+  .field select{
+    width:100%;
+    font: inherit;
+    font-size:13.5px;
+    padding:11px 13px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:#FBFCFD;
+    color:var(--ink);
+    outline:none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{border-color:var(--accent);}
+  .field textarea{resize:vertical; min-height:88px;}
+
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+
+  .dropzone{
+    border:2px dashed var(--line);
+    border-radius:12px;
+    padding:22px;
+    text-align:center;
+    cursor:pointer;
+    background:#FBFCFD;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .dropzone.drag{border-color:var(--accent); background:var(--accent-ink);}
+  .dropzone svg{width:24px; height:24px; color:var(--muted); margin-bottom:8px;}
+  .dropzone p{font-size:13px; color:var(--ink); font-weight:600;}
+  .dropzone span{font-size:11.5px; color:var(--muted);}
+
+  .thumb-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(74px, 1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  .thumb{
+    position:relative;
+    width:100%; aspect-ratio:1/1;
+    border-radius:9px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .thumb .rm{
+    position:absolute; top:4px; right:4px;
+    width:20px; height:20px; border-radius:50%;
+    background:rgba(15,18,26,.75); color:#fff;
+    border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .thumb .rm svg{width:10px; height:10px;}
+
+  .modal-actions{
+    display:flex; justify-content:flex-end; gap:10px;
+    margin-top:6px;
+  }
+
+  /* ---------------- Toast ---------------- */
+  .toast{
+    position:fixed; bottom:24px; right:24px;
+    background:var(--ink); color:#fff;
+    padding:14px 18px; border-radius:10px;
+    font-size:13px; max-width:320px;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);
+    transform:translateY(20px); opacity:0; pointer-events:none;
+    transition:all .25s ease;
+    z-index:60;
+  }
+  .toast.show{transform:translateY(0); opacity:1;}
+  .toast strong{display:block; margin-bottom:2px; font-size:12.5px; color:#8FE3C7;}
+
+  /* ---------------- Status select (styled as stamp) ---------------- */
+  .stamp-select{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 24px 5px 10px; border-radius:6px; border:1.5px solid currentColor;
+    transform:rotate(-2deg);
+    appearance:none; -webkit-appearance:none;
+    cursor:pointer;
+    background-repeat:no-repeat;
+    background-position:right 8px center;
+    background-size:9px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3'><path d='M6 9l6 6 6-6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  }
+  .stamp-select.stamp-aberto{color:var(--stamp-red); background-color:var(--stamp-red-bg);}
+  .stamp-select.stamp-andamento{color:var(--stamp-amber); background-color:var(--stamp-amber-bg);}
+  .stamp-select.stamp-resolvido{color:var(--stamp-green); background-color:var(--stamp-green-bg);}
+  .stamp-select:disabled{opacity:.55; cursor:wait;}
+
+  /* ---------------- Loading / error / empty states ---------------- */
+  .state-box{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:36px 24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13.5px;
+  }
+  .state-box.error{color:var(--stamp-red);}
+  .state-box .retry-btn{margin-top:12px;}
+
+  .spinner{
+    width:22px; height:22px;
+    border:3px solid var(--line);
+    border-top-color:var(--accent);
+    border-radius:50%;
+    margin:0 auto 12px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce){
+    .spinner{animation:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .toast{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="tag">CC</div>
+      <div>
+        <strong>Central de Chamados</strong>
+        <small>Suporte interno</small>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Painel
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/></svg>
+        Meus chamados
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+        Categorias
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.45c-.7.2-1.5.7-1.5 1.55" stroke-linecap="round"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
+        Ajuda
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      Created by Rikael Ribeiro<br>
+      Departamento: TI<br>
+      v1.0 — modo demonstração para portifólio.
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <h1>Painel de chamados</h1>
+        <p>Acompanhe e registre problemas reportados na empresa</p>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Buscar chamado, nº ou palavra-chave">
+        </div>
+        <button class="btn btn-primary" id="openModalBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Abrir chamado
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="bar bar-red"></div><div class="num mono" id="statAberto">0</div><div class="lbl">Abertos</div></div>
+      <div class="stat-card"><div class="bar bar-amber"></div><div class="num mono" id="statAndamento">0</div><div class="lbl">Em andamento</div></div>
+      <div class="stat-card"><div class="bar bar-green"></div><div class="num mono" id="statResolvido">0</div><div class="lbl">Resolvidos</div></div>
+      <div class="stat-card"><div class="bar bar-ink"></div><div class="num mono" id="statTotal">0</div><div class="lbl">Total no mês</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section-head">
+      <h2>Chamados recentes</h2>
+      <span id="listCount"></span>
+    </div>
+
+    <div class="filters" id="filters">
+      <div class="chip active" data-filter="todos">Todos</div>
+      <div class="chip" data-filter="aberto">Aberto</div>
+      <div class="chip" data-filter="andamento">Em andamento</div>
+      <div class="chip" data-filter="resolvido">Resolvido</div>
+    </div>
+
+    <div class="ticket-list" id="ticketList"></div>
+
+  </main>
+</div>
+
+<!-- Modal: Novo chamado -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3>Abrir novo chamado</h3>
+        <p>Descreva o problema — anexe fotos se ajudar a explicar</p>
+      </div>
+      <button class="close-btn" id="closeModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form class="modal-body" id="ticketForm">
+      <div class="field">
+        <label for="titulo">Título do problema</label>
+        <input type="text" id="titulo" name="titulo" placeholder="Ex: Impressora do 3º andar não liga" required>
+      </div>
+
+      <div class="field">
+        <label for="categoria">Categoria</label>
+        <select id="categoria" name="categoria" required>
+          <option value="">Selecione</option>
+          <option value="ti">TI / Sistemas</option>
+          <option value="infraestrutura">Infraestrutura</option>
+          <option value="manutencao">Manutenção</option>
+          <option value="rh">RH</option>
+          <option value="financeiro">Financeiro</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" name="descricao" placeholder="Explique o que aconteceu, onde e desde quando" required></textarea>
+      </div>
+
+      <div class="field">
+        <label>Fotos do problema</label>
+        <div class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m5 17 4-4 3 3 3-4 4 5"/></svg>
+          <p>Clique ou arraste imagens aqui</p>
+          <span>PNG ou JPG · até 5 fotos</span>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        <div class="thumb-grid" id="thumbGrid"></div>
+        <div class="hint">As fotos ajudam a equipe responsável a entender o problema mais rápido. um administrador definirá a prioridade do seu chamado.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Enviar chamado</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <strong>Chamado registrado</strong>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+(function(){
+  var API_BASE = '/api';
+
+  var tickets = [];          // populado via GET /api/chamados
+  var currentFilter = 'todos';
+  var pendingFiles = [];
+  var isLoading = false;
+
+  var categoriaLabel = {ti:'TI / Sistemas', infraestrutura:'Infraestrutura', manutencao:'Manutenção', rh:'RH', financeiro:'Financeiro', outros:'Outros'};
+  var statusLabel = {aberto:'Aberto', andamento:'Em andamento', resolvido:'Resolvido'};
+
+  var ticketList = document.getElementById('ticketList');
+  var listCount = document.getElementById('listCount');
+
+  // ---------------- Carregar chamados do backend ----------------
+  // GET /api/chamados
+  function loadTickets(){
+    isLoading = true;
+    renderLoading();
+
+    fetch(API_BASE + '/chamados')
+      .then(function(res){
+        if(!res.ok) throw new Error('Falha ao carregar chamados');
+        return res.json();
+      })
+      .then(function(data){
+        tickets = data.map(normalizeTicket);
+        isLoading = false;
+        render();
+      })
+      .catch(function(){
+        isLoading = false;
+        renderError();
+      });
+  }
+
+  // Ajusta o formato vindo do banco para o formato usado pelo front
+  function normalizeTicket(row){
+    return {
+      dbId: row.id,
+      id: row.numero || ('OS-' + String(row.id).padStart(4, '0')),
+      titulo: row.titulo,
+      descricao: row.descricao || '',
+      categoria: row.categoria,
+      prioridade: row.prioridade,
+      status: row.status,
+      data: formatDate(row.criado_em),
+      anexos: parseInt(row.anexos, 10) || 0,
+      criadoPor: row.criado_por || ''
+    };
+  }
+
+  function formatDate(iso){
+    if(!iso) return '';
+    var d = new Date(iso);
+    if(isNaN(d)) return '';
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  }
+
+  // ---------------- Render ----------------
+  function renderLoading(){
+    ticketList.innerHTML = '<div class="state-box"><div class="spinner"></div>Carregando chamados...</div>';
+    listCount.textContent = '';
+  }
+
+  function renderError(){
+    ticketList.innerHTML =
+      '<div class="state-box error">' +
+        'Não foi possível carregar os chamados do servidor (' + escapeHtml(API_BASE + '/chamados') + ').' +
+        '<div><button type="button" class="btn btn-ghost retry-btn" id="retryBtn">Tentar novamente</button></div>' +
+      '</div>';
+    listCount.textContent = '';
+    document.getElementById('retryBtn').addEventListener('click', loadTickets);
+  }
+
+  function render(){
+    if(isLoading) return;
+
+    var filtered = currentFilter === 'todos' ? tickets : tickets.filter(function(t){ return t.status === currentFilter; });
+    listCount.textContent = filtered.length + ' chamado(s)';
+
+    if(filtered.length === 0){
+      ticketList.innerHTML = '<div class="state-box">Nenhum chamado encontrado para este filtro.</div>';
+      updateStats();
+      return;
+    }
+
+    ticketList.innerHTML = filtered.map(function(t){
+      return (
+        '<div class="ticket-slip">' +
+          '<div class="notch-bottom"></div>' +
+          '<div class="ticket-id">Nº<span class="num">' + t.id + '</span></div>' +
+          '<div class="ticket-main">' +
+            '<div class="title">' + escapeHtml(t.titulo) + '</div>' +
+            '<div class="desc">' + escapeHtml(t.descricao) + '</div>' +
+            '<div class="ticket-meta">' +
+              '<span class="tag">' + categoriaLabel[t.categoria] + '</span>' +
+              '<span class="tag"><span class="priority-dot pr-' + t.prioridade + '"></span>' + prioridadeLabel(t.prioridade) + '</span>' +
+              (t.criadoPor ? '<span class="tag">' + userIcon() + escapeHtml(t.criadoPor) + '</span>' : '') +
+              statusSelect(t) +
+            '</div>' +
+          '</div>' +
+          '<div class="ticket-side">' +
+            '<span class="date mono">' + t.data + '</span>' +
+            (t.anexos > 0 ? '<span class="attach-badge">' + cameraIcon() + t.anexos + ' foto(s)</span>' : '') +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    updateStats();
+  }
+
+  function statusSelect(t){
+    var opts = ['aberto','andamento','resolvido'].map(function(s){
+      return '<option value="' + s + '"' + (s === t.status ? ' selected' : '') + '>' + statusLabel[s] + '</option>';
+    }).join('');
+    return '<select class="stamp-select stamp-' + t.status + '" data-dbid="' + t.dbId + '">' + opts + '</select>';
+  }
+
+  function prioridadeLabel(p){
+    return {baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente'}[p] || p;
+  }
+
+  function cameraIcon(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
+  }
+
+  function userIcon(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;margin-right:4px;vertical-align:-1px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke-linecap="round"/></svg>';
+  }
+
+  function escapeHtml(s){
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function updateStats(){
+    var aberto = tickets.filter(function(t){return t.status==='aberto';}).length;
+    var andamento = tickets.filter(function(t){return t.status==='andamento';}).length;
+    var resolvido = tickets.filter(function(t){return t.status==='resolvido';}).length;
+    document.getElementById('statAberto').textContent = aberto;
+    document.getElementById('statAndamento').textContent = andamento;
+    document.getElementById('statResolvido').textContent = resolvido;
+    document.getElementById('statTotal').textContent = tickets.length;
+  }
+
+  // ---------------- Mudar status ----------------
+  // PATCH /api/chamados/:id/status
+  ticketList.addEventListener('change', function(e){
+    var select = e.target.closest('.stamp-select');
+    if(!select) return;
+
+    var dbId = select.dataset.dbid;
+    var novoStatus = select.value;
+    var ticket = tickets.find(function(t){ return String(t.dbId) === String(dbId); });
+    var statusAnterior = ticket ? ticket.status : null;
+
+    select.disabled = true;
+
+    fetch(API_BASE + '/chamados/' + dbId + '/status', {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ status: novoStatus })
+    })
+      .then(function(res){
+        if(!res.ok) throw new Error('Falha ao atualizar status');
+        return res.json();
+      })
+      .then(function(){
+        if(ticket) ticket.status = novoStatus;
+        showToast('Status atualizado para "' + statusLabel[novoStatus] + '".');
+        render();
+      })
+      .catch(function(){
+        if(ticket) ticket.status = statusAnterior;
+        showToast('Não foi possível atualizar o status. Tente novamente.');
+        render();
+      });
+  });
+
+  // ---------------- Filters ----------------
+  document.getElementById('filters').addEventListener('click', function(e){
+    var chip = e.target.closest('.chip');
+    if(!chip) return;
+    document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+    chip.classList.add('active');
+    currentFilter = chip.dataset.filter;
+    render();
+  });
+
+  // ---------------- Modal open/close ----------------
+  var overlay = document.getElementById('overlay');
+  function openModal(){ overlay.classList.add('open'); }
+  function closeModal(){
+    overlay.classList.remove('open');
+    document.getElementById('ticketForm').reset();
+    pendingFiles = [];
+    renderThumbs();
+  }
+  document.getElementById('openModalBtn').addEventListener('click', openModal);
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
+
+  // ---------------- Attachments (dropzone) ----------------
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  var thumbGrid = document.getElementById('thumbGrid');
+
+  dropzone.addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(e){ addFiles(e.target.files); fileInput.value = ''; });
+
+  ['dragover','dragenter'].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){ e.preventDefault(); dropzone.classList.add('drag'); });
+  });
+  ['dragleave','drop'].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){ e.preventDefault(); dropzone.classList.remove('drag'); });
+  });
+  dropzone.addEventListener('drop', function(e){
+    addFiles(e.dataTransfer.files);
+  });
+
+  function addFiles(fileList){
+    Array.from(fileList).forEach(function(f){
+      if(!f.type.startsWith('image/')) return;
+      if(pendingFiles.length >= 5) return;
+      pendingFiles.push(f);
+    });
+    renderThumbs();
+  }
+
+  function renderThumbs(){
+    thumbGrid.innerHTML = '';
+    pendingFiles.forEach(function(f, idx){
+      var url = URL.createObjectURL(f);
+      var div = document.createElement('div');
+      div.className = 'thumb';
+      div.innerHTML = '<img src="' + url + '" alt="Anexo">' +
+        '<button type="button" class="rm" data-idx="' + idx + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg></button>';
+      thumbGrid.appendChild(div);
+    });
+  }
+
+  thumbGrid.addEventListener('click', function(e){
+    var btn = e.target.closest('.rm');
+    if(!btn) return;
+    pendingFiles.splice(Number(btn.dataset.idx), 1);
+    renderThumbs();
+  });
+
+  // ---------------- Submit ----------------
+  document.getElementById('ticketForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    var titulo = document.getElementById('titulo').value.trim();
+    var categoria = document.getElementById('categoria').value;
+    var descricao = document.getElementById('descricao').value.trim();
+
+    var formData = new FormData();
+    formData.append('titulo', titulo);
+    formData.append('categoria', categoria);
+    formData.append('descricao', descricao);
+    pendingFiles.forEach(function(f){ formData.append('anexos', f); });
+
+    var submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    // POST /api/chamados  — cria um novo chamado (multipart/form-data)
+    // Prioridade não é mais escolhida aqui — o admin define depois pelo painel.
+    fetch(API_BASE + '/chamados', { method: 'POST', body: formData })
+      .then(function(res){
+        if(!res.ok) throw new Error('Falha no envio');
+        return res.json();
+      })
+      .then(function(data){
+        tickets.unshift({
+          dbId: data.chamado_id,
+          id: data.id,
+          titulo: data.titulo || titulo,
+          descricao: data.descricao || descricao,
+          categoria: data.categoria || categoria,
+          prioridade: data.prioridade || 'media',
+          status: data.status || 'aberto',
+          data: formatDate(data.criado_em) || todayFallback(),
+          anexos: (data.anexos && data.anexos.length) || pendingFiles.length,
+          criadoPor: data.criado_por || ''
+        });
+        document.querySelector('.chip[data-filter="todos"]').click();
+        showToast('Chamado ' + data.id + ' criado com sucesso.');
+        closeModal();
+      })
+      .catch(function(){
+        showToast('Não foi possível enviar o chamado. Verifique a conexão com ' + API_BASE + '/chamados e tente novamente.');
+      })
+      .finally(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar chamado';
+      });
+  });
+
+  function todayFallback(){
+    var d = new Date();
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  }
+
+  // ---------------- Toast ----------------
+  var toast = document.getElementById('toast');
+  var toastMsg = document.getElementById('toastMsg');
+  var toastTimer;
+  function showToast(msg){
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
+  }
+
+  loadTickets();
+})();
+</script>
+
+</body>
+</html>

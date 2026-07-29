@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — Chamados</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #EAECEF;
+    --card: #FFFFFF;
+    --ink: #1B1F27;
+    --ink-soft: #5B6270;
+    --line: #D6D9DE;
+    --accent: #2F5FDB;
+    --accent-ink: #FFFFFF;
+
+    --pri-baixa: #6B8F71;
+    --pri-media: #B4901E;
+    --pri-alta: #C1652F;
+    --pri-urgente: #B23A3A;
+
+    --st-aberto: #4A6FA5;
+    --st-andamento: #B4901E;
+    --st-resolvido: #4F8F63;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ink);
+    color: #F2F3F5;
+    padding: 22px 32px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  header h1 span { color: #8FA8E8; }
+
+  header .sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #9AA1AE;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  .toolbar {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+
+  .toolbar label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .toolbar select, .toolbar button {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .toolbar button.refresh {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    align-self: flex-end;
+    padding: 8px 16px;
+    font-weight: 600;
+  }
+
+  .toolbar button.refresh:hover { background: #30343E; }
+  .toolbar button.refresh:focus-visible,
+  .toolbar select:focus-visible,
+  select:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 14px 2px;
+  }
+
+  .ticket {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    border-left: 5px solid var(--pri-media);
+    transition: box-shadow 0.15s ease;
+  }
+
+  .ticket:hover { box-shadow: 0 2px 10px rgba(20,24,31,0.06); }
+
+  .ticket[data-prioridade="baixa"] { border-left-color: var(--pri-baixa); }
+  .ticket[data-prioridade="media"] { border-left-color: var(--pri-media); }
+  .ticket[data-prioridade="alta"] { border-left-color: var(--pri-alta); }
+  .ticket[data-prioridade="urgente"] { border-left-color: var(--pri-urgente); }
+
+  .ticket-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px 14px;
+    flex-wrap: wrap;
+  }
+
+  .ticket-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  .ticket-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 4px 0 6px;
+  }
+
+  .ticket-meta {
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .badge.st-aberto { background: var(--st-aberto); }
+  .badge.st-andamento { background: var(--st-andamento); }
+  .badge.st-resolvido { background: var(--st-resolvido); }
+
+  /* perforated tear-off divider, like a work-order stub */
+  .perf {
+    position: relative;
+    height: 0;
+    border-top: 1px dashed var(--line);
+    margin: 0 0;
+  }
+  .perf::before, .perf::after {
+    content: "";
+    position: absolute;
+    top: -7px;
+    width: 14px;
+    height: 14px;
+    background: var(--bg);
+    border-radius: 50%;
+  }
+  .perf::before { left: -7px; }
+  .perf::after { right: -7px; }
+
+  .ticket-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 18px;
+    background: #FAFAFB;
+    flex-wrap: wrap;
+  }
+
+  .field { display: flex; align-items: center; gap: 8px; }
+
+  .field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+
+  .field select {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+
+  .resolve-btn {
+    margin-left: auto;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--st-resolvido);
+    color: var(--st-resolvido);
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .resolve-btn:hover { background: var(--st-resolvido); color: #fff; }
+
+  .resolve-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+    background: #fff;
+    color: var(--st-resolvido);
+  }
+
+  .save-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    min-width: 70px;
+  }
+
+  .save-hint.ok { color: var(--st-resolvido); }
+  .save-hint.err { color: var(--pri-urgente); }
+
+  .ticket-mod {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 18px 14px;
+    background: #FBF8F8;
+    border-top: 1px dashed var(--line);
+    flex-wrap: wrap;
+  }
+
+  .block-btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--pri-alta);
+    color: var(--pri-alta);
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .block-btn:hover:not(:disabled) { background: var(--pri-alta); color: #fff; }
+  .block-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .delete-btn {
+    margin-left: auto;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--pri-urgente);
+    color: var(--pri-urgente);
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .delete-btn:hover { background: var(--pri-urgente); color: #fff; }
+
+  .empty, .loading, .error {
+    background: var(--card);
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  .error { border-color: var(--pri-urgente); color: var(--pri-urgente); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticket { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Painel <span>Admin</span> — Chamados</h1>
+  <div class="sub" id="clock"></div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div>
+      <label for="f-status">Status</label>
+      <select id="f-status">
+        <option value="">Todos</option>
+        <option value="aberto">Aberto</option>
+        <option value="andamento">Andamento</option>
+        <option value="resolvido">Resolvido</option>
+      </select>
+    </div>
+    <div>
+      <label for="f-categoria">Categoria</label>
+      <select id="f-categoria">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div>
+      <label for="f-prioridade">Prioridade</label>
+      <select id="f-prioridade">
+        <option value="">Todas</option>
+        <option value="baixa">Baixa</option>
+        <option value="media">Média</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+      </select>
+    </div>
+    <button class="refresh" id="btn-refresh">Atualizar lista</button>
+  </div>
+
+  <p class="count" id="count"></p>
+  <div id="list"></div>
+</main>
+
+<script>
+  // Ajuste a base da API se o painel não estiver hospedado no mesmo domínio do backend.
+  const API_BASE = '/api/chamados';
+
+  const listEl = document.getElementById('list');
+  const countEl = document.getElementById('count');
+  const clockEl = document.getElementById('clock');
+  const fStatus = document.getElementById('f-status');
+  const fCategoria = document.getElementById('f-categoria');
+  const fPrioridade = document.getElementById('f-prioridade');
+
+  function tickClock() {
+    clockEl.textContent = new Date().toLocaleString('pt-BR');
+  }
+  tickClock();
+  setInterval(tickClock, 1000 * 30);
+
+  function formatarData(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function buildQuery() {
+    const params = new URLSearchParams();
+    if (fStatus.value) params.set('status', fStatus.value);
+    if (fCategoria.value) params.set('categoria', fCategoria.value);
+    if (fPrioridade.value) params.set('prioridade', fPrioridade.value);
+    const qs = params.toString();
+    return qs ? `?${qs}` : '';
+  }
+
+  function ticketRow(t) {
+    const prioridade = t.prioridade || 'media';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ticket';
+    wrapper.dataset.prioridade = prioridade;
+    wrapper.dataset.id = t.id;
+
+    wrapper.innerHTML = `
+      <div class="ticket-top">
+        <div>
+          <div class="ticket-id">${t.numero || ('OS-' + String(t.id).padStart(4, '0'))}</div>
+          <div class="ticket-title">${escapeHtml(t.titulo)}</div>
+          <div class="ticket-meta">
+            <span>${escapeHtml(t.categoria || '—')}</span>
+            <span>·</span>
+            <span>aberto por ${escapeHtml(t.criado_por || '—')}</span>
+            <span>·</span>
+            <span>${formatarData(t.criado_em)}</span>
+          </div>
+        </div>
+        <span class="badge st-${t.status}">${t.status}</span>
+      </div>
+      <div class="perf"></div>
+      <div class="ticket-actions">
+        <div class="field">
+          <label>Prioridade</label>
+          <select class="sel-prioridade">
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select class="sel-status">
+            <option value="aberto">Aberto</option>
+            <option value="andamento">Andamento</option>
+            <option value="resolvido">Resolvido</option>
+          </select>
+        </div>
+        <span class="save-hint"></span>
+        <button class="resolve-btn">Marcar como resolvido</button>
+      </div>
+      <div class="ticket-mod">
+        <div class="field">
+          <label>Bloquear usuário</label>
+          <select class="sel-duracao">
+            <option value="1">1 hora</option>
+            <option value="24">24 horas</option>
+            <option value="168">7 dias</option>
+          </select>
+        </div>
+        <button class="block-btn">Bloquear usuário</button>
+        <span class="save-hint mod-hint"></span>
+        <button class="delete-btn">Excluir chamado</button>
+      </div>
+    `;
+
+    const selPrioridade = wrapper.querySelector('.sel-prioridade');
+    const selStatus = wrapper.querySelector('.sel-status');
+    const resolveBtn = wrapper.querySelector('.resolve-btn');
+    const hint = wrapper.querySelector('.save-hint');
+    const badge = wrapper.querySelector('.badge');
+
+    selPrioridade.value = prioridade;
+    selStatus.value = t.status;
+    resolveBtn.disabled = t.status === 'resolvido';
+
+    selPrioridade.addEventListener('change', () => {
+      wrapper.dataset.prioridade = selPrioridade.value;
+      salvarPrioridade(t.id, selPrioridade.value, hint);
+    });
+
+    selStatus.addEventListener('change', () => {
+      salvarStatus(t.id, selStatus.value, hint, badge, resolveBtn);
+    });
+
+    resolveBtn.addEventListener('click', () => {
+      selStatus.value = 'resolvido';
+      salvarStatus(t.id, 'resolvido', hint, badge, resolveBtn);
+    });
+
+    const selDuracao = wrapper.querySelector('.sel-duracao');
+    const blockBtn = wrapper.querySelector('.block-btn');
+    const deleteBtn = wrapper.querySelector('.delete-btn');
+    const modHint = wrapper.querySelector('.mod-hint');
+
+    if (!t.usuario_id) {
+      blockBtn.disabled = true;
+      blockBtn.title = 'usuario_id não veio na resposta da API — veja a nota no chat';
+    }
+
+    blockBtn.addEventListener('click', () => {
+      if (!t.usuario_id) return;
+      const label = selDuracao.options[selDuracao.selectedIndex].text;
+      if (!confirm(`Bloquear ${t.criado_por || 'este usuário'} por ${label} como advertência?`)) return;
+      bloquearUsuario(t.usuario_id, selDuracao.value, modHint);
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (!confirm(`Excluir o chamado ${t.numero || t.id}? Essa ação não pode ser desfeita.`)) return;
+      excluirChamado(t.id, wrapper);
+    });
+
+    return wrapper;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  function showHint(hint, ok, msg) {
+    hint.textContent = msg;
+    hint.className = 'save-hint ' + (ok ? 'ok' : 'err');
+    setTimeout(() => { hint.textContent = ''; hint.className = 'save-hint'; }, 2500);
+  }
+
+  async function salvarStatus(id, status, hint, badge, resolveBtn) {
+    hint.textContent = 'salvando…';
+    hint.className = 'save-hint';
+    try {
+      const res = await fetch(`${API_BASE}/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error();
+      badge.className = 'badge st-' + status;
+      badge.textContent = status;
+      resolveBtn.disabled = status === 'resolvido';
+      showHint(hint, true, 'salvo');
+    } catch (e) {
+      showHint(hint, false, 'falhou');
+    }
+  }
+
+  // Requer um endpoint PATCH /api/chamados/:id/prioridade no backend
+  // (o controller enviado ainda não tem essa rota — ver nota abaixo do arquivo).
+  async function salvarPrioridade(id, prioridade, hint) {
+    hint.textContent = 'salvando…';
+    hint.className = 'save-hint';
+    try {
+      const res = await fetch(`${API_BASE}/${id}/prioridade`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prioridade }),
+      });
+      if (!res.ok) throw new Error();
+      showHint(hint, true, 'salvo');
+    } catch (e) {
+      showHint(hint, false, 'falhou');
+    }
+  }
+
+  // Requer um endpoint PATCH /api/usuarios/:id/bloqueio no backend
+  // (ver nota no chat — controller e migração ainda não existem).
+  async function bloquearUsuario(usuarioId, duracaoHoras, hint) {
+    hint.textContent = 'bloqueando…';
+    hint.className = 'save-hint';
+    try {
+      const res = await fetch(`/api/usuarios/${usuarioId}/bloqueio`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ duracao_horas: Number(duracaoHoras) }),
+      });
+      if (!res.ok) throw new Error();
+      showHint(hint, true, 'bloqueado');
+    } catch (e) {
+      showHint(hint, false, 'falhou');
+    }
+  }
+
+  // Requer um endpoint DELETE /api/chamados/:id no backend
+  // (o controller enviado ainda não tem essa rota — ver nota no chat).
+  async function excluirChamado(id, wrapper) {
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      wrapper.remove();
+      const restantes = listEl.querySelectorAll('.ticket').length;
+      countEl.textContent = restantes ? `${restantes} chamado${restantes === 1 ? '' : 's'}` : '';
+      if (!restantes) listEl.innerHTML = '<div class="empty">Nenhum chamado encontrado para este filtro.</div>';
+    } catch (e) {
+      alert('Não foi possível excluir o chamado.');
+    }
+  }
+
+  async function carregarChamados() {
+    listEl.innerHTML = '<div class="loading">Carregando chamados…</div>';
+    countEl.textContent = '';
+    try {
+      const res = await fetch(`${API_BASE}${buildQuery()}`);
+      if (!res.ok) throw new Error('Falha ao buscar chamados');
+      const dados = await res.json();
+
+      popularCategorias(dados);
+
+      if (!dados.length) {
+        listEl.innerHTML = '<div class="empty">Nenhum chamado encontrado para este filtro.</div>';
+        countEl.textContent = '';
+        return;
+      }
+
+      countEl.textContent = `${dados.length} chamado${dados.length === 1 ? '' : 's'}`;
+      listEl.innerHTML = '';
+      dados.forEach(t => listEl.appendChild(ticketRow(t)));
+    } catch (e) {
+      listEl.innerHTML = '<div class="error">Não foi possível carregar os chamados. Verifique a conexão com a API.</div>';
+    }
+  }
+
+  function popularCategorias(dados) {
+    const atual = fCategoria.value;
+    const categorias = Array.from(new Set(dados.map(d => d.categoria).filter(Boolean))).sort();
+    fCategoria.innerHTML = '<option value="">Todas</option>' +
+      categorias.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    fCategoria.value = atual;
+  }
+
+  document.getElementById('btn-refresh').addEventListener('click', carregarChamados);
+  fStatus.addEventListener('change', carregarChamados);
+  fCategoria.addEventListener('change', carregarChamados);
+  fPrioridade.addEventListener('change', carregarChamados);
+
+  carregarChamados();
+</script>
+
+</body>
+</html>
