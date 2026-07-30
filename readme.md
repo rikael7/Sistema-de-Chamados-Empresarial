@@ -30,8 +30,8 @@ O Sistema de chamados nasceu com um sistema robusto de autenticação de usuario
 
 Exemplo:
 
-![Tela de login](./docs/img/dashboardadmin.png)
-![Tela de upload](./docs/img/dashboarduser.png)
+![Tela de login](./docs/dashboardadmin.png)
+![Tela de upload](./docs/dashboarduser.png)
 
 ---
 
