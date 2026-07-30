@@ -127,7 +127,7 @@ app.use('/api/profile', protectedRoutes);
 app.use('/api', chamados);
 
 
-
+////
 // Erro genérico
 app.use((err, req, res, next) => {
     console.error('Erro não tratado:', err);
