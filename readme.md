@@ -1,133 +1,190 @@
+# 🚀 Sistema de Chamados Empresarial
 
-Plataforma web construída em **Node.js/Express** com **PostgreSQL**, composta por um módulo de **autenticação/gerenciamento** 
-o projeto é um **sistema de chamados (OS)** com anexos, comentários e painel administrativo.
+> Plataforma empresarial com sistema de chamados (OS) integrado, permitindo cadastro/login de usuários, upload de vídeos, abertura e acompanhamento de chamados, e um painel administrativo completo.
 
----
-
-## Sumário
-
-- [Visão geral](#visão-geral)
-- [Funcionalidades](#funcionalidades)
-- [Stack tecnológica](#stack-tecnológica)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Banco de dados](#banco-de-dados)
-- [Rotas da API](#rotas-da-api)
-- [Segurança](#segurança)
-- [Pontos de atenção conhecidos](#pontos-de-atenção-conhecidos)
-- [Licença](#licença)
+Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upload de arquivos e um módulo de chamados técnicos com anexos, comentários, prioridades e status de atendimento.
 
 ---
 
-## Visão geral
+# 📌 Sobre o Projeto
 
-O projeto reúne dois módulos que compartilham a mesma base de usuários:
-
-1. **Autenticação** — cadastro/login de usuários, Sistema de gerenciamento somente para admins .
-2. **Sistema de Chamados** — abertura de chamados (OS) com anexos e comentários, painel administrativo para alterar prioridade/status e histórico de acompanhamento.
-
----
+O Sistema de chamados nasceu com um sistema robusto de autenticação de usuarios visando a segurança e evoluiu para incluir um sistema de chamados/OS. A aplicação permite que usuários se cadastrem, façam login, enviem arquivos e abram chamados; enquanto administradores a prioridade e o tratamento de chamados da empresa, administradores administram prioridades e o status de cada atendimento.
 
 ## Funcionalidades
 
-**Autenticação**
-- Registro e login com sessão (`express-session`)
-- Hash de senha com `bcrypt`
-- Regeneração de sessão no login (proteção contra *session fixation*)
-- Middleware de rota protegida (`isAuthenticated`) e de admin (`admin`)
-- Bloqueio de acesso a `/login` e `/register` para quem já está logado (`authtrue`)
-
-**Validação e sanitização**
-- `express-validator` para regras de nome, email e senha
-- Bloqueio de e-mails temporários/descartáveis
-- Verificação de domínio de e-mail via consulta MX/DNS
-- Sanitização de campos string contra XSS (`xss`) antes das validações
-
-**Upload de arquivos**
-- Upload de vídeos (admin) via `multer` com streaming (suporte a `Range` para reprodução)
-- Upload de arquivos comprimidos/documentos (ZIP, RAR, PDF, imagens) direto para o Supabase Storage
-
-**Sistema de chamados**
-- Criação de chamado com até 5 anexos
-- Numeração automática (`OS-0001`, `OS-0002`, ...)
-- Listagem com filtros (`status`, `categoria`, `prioridade`)
-- Detalhe do chamado com anexos e comentários
-- Atualização de status e prioridade (restrito a admin)
-- Exclusão de chamado em cascata (remove anexos e comentários)
-
-**Interface**
-- Páginas de login, registro, upload e 404 com HTML/CSS próprios
+- ✅ Cadastro e autenticação de usuários (sessão + bcrypt)
+- ✅ Sistema de login com regeneração de sessão (anti session-fixation)
+- ✅ Controle de permissões (usuário comum x admin)
+- ✅ Área administrativa (upload de vídeo, gestão de chamados)
+- ✅ Criação e gerenciamento de chamados (OS) com prioridade e status
+- ✅ Upload e armazenamento de arquivos (avatar, anexos, vídeos, ZIP/PDF via Supabase)
+- ✅ Validação de dados (nome, e-mail, senha, e-mails descartáveis, domínio MX)
+- ✅ Sanitização anti-XSS em todas as entradas de texto
+- ✅ Streaming de vídeo com suporte a `Range`
+- ✅ Integração com banco de dados PostgreSQL
 
 ---
 
-## Stack tecnológica
+# 🖥️ Demonstração
 
-| Camada          | Tecnologia                          |
-|-----------------|--------------------------------------|
-| Runtime         | Node.js + Express                    |
-| Banco de dados  | PostgreSQL (`pg`)                    |
-| Sessão          | `express-session`                    |
-| Senhas          | `bcrypt`                             |
-| Validação       | `express-validator`                  |
-| Sanitização     | `xss`                                |
-| Upload local    | `multer` (disk storage)              |
-| Storage externo | Supabase Storage                     |
-| Front-end       | HTML + CSS + JavaScript vanilla      |
+
+Exemplo:
+
+![Tela de login](./docs/screenshots/login.png)
+![Tela de upload](./docs/screenshots/upload.png)
 
 ---
 
-## Estrutura do projeto
+# 🏗️ Arquitetura do Projeto
 
 ```
-.
-├── config/
-│   ├── dbpg.js               # pool de conexão PostgreSQL
-│   └── supabase.js           # client do Supabase
-├── controllers/
-│   └── chamadosController.js
-├── middleware/
-│   ├── authMiddleware.js     # isAuthenticated / admin
-│   ├── authtrue.js           # bloqueia acesso logado a login/registro
-│   ├── sanitize.js           # sanitizeBody (anti-XSS)
-│   └── validators.js         # regras de registro/login
-├── models/
-│   └── userModel.js          # usuários + upload de vídeo
-├── routes/
-│   ├── authRoutes.js         # /auth/register, /auth/login, /auth/logout
-│   ├── chamados.js           # /api/chamados
-│   ├── protectedRoutes.js    # /profile, /avatar, /videos, /stream
-│   └── publicupload.js       # /api/upload/zip (Supabase)
-├── public/
-│   ├── login.html
-│   ├── register.html
-│   ├── upload.html
-│   ├── dashboard.html
-│   ├── admin.html
-│   └── 404.html
-└── schema.sql                 # script de criação das tabelas
+Usuário
+   |
+   ↓
+Frontend (login, registro, upload, dashboard, admin)
+   |
+   ↓
+API Backend (Express)
+   |
+   ├── Middlewares (auth, admin, sanitize, validators)
+   |
+   ├── Banco de Dados (PostgreSQL)
+   |      ├── users
+   |      ├── videos
+   |      ├── chamados
+   |      ├── chamado_anexos
+   |      └── chamado_comentarios
+   |
+   └── Armazenamento de Arquivos
+          ├── Disco local (multer) — avatares, vídeos, anexos de chamados
+          └── Supabase Storage — ZIP/RAR/PDF/imagens
 ```
 
 ---
+
+# 🛠️ Tecnologias Utilizadas
+
+## Backend
+
+- Node.js
+- Express.js
+- PostgreSQL (`pg`)
+- Express Session
+- Middleware de autenticação (`isAuthenticated`, `admin`, `authtrue`)
+- Upload de arquivos (`multer`)
+- Validação (`express-validator`)
+- Sanitização anti-XSS (`xss`)
+- Bcrypt para hash de senha
+- Supabase Storage (SDK `@supabase/supabase-js`)
+
+## Frontend
+
+- HTML5
+- CSS3
+- JavaScript (vanilla)
+
+## Ferramentas
+
+- Git
+- GitHub
+- VS Code
+- Postman
+
+## Hospedagem
+
+- Render / VPS / Cloud
+
+---
+
+# 📂 Estrutura de Pastas
+
+```
+InsideBox
+│
+├── backend
+│   │
+│   ├── controllers
+│   │   └── chamadosController.js
+│   │
+│   ├── models
+│   │   └── userModel.js
+│   │
+│   ├── routes
+│   │   ├── authRoutes.js
+│   │   ├── chamados.js
+│   │   ├── protectedRoutes.js
+│   │   └── publicupload.js
+│   │
+│   ├── middleware
+│   │   ├── authMiddleware.js
+│   │   ├── authtrue.js
+│   │   ├── sanitize.js
+│   │   └── validators.js
+│   │
+│   ├── config
+│   │   ├── dbpg.js
+│   │   └── supabase.js
+│   │
+│   ├── database
+│   │   └── schema.sql
+│   │
+│   ├── uploads
+│   └── server.js
+│
+├── frontend
+│   │
+│   ├── pages
+│   │   ├── login.html
+│   │   ├── register.html
+│   │   ├── upload.html
+│   │   ├── dashboard.html
+│   │   ├── admin.html
+│   │   └── 404.html
+│   │
+│   ├── css
+│   └── javascript
+│
+├── .env
+├── package.json
+└── README.md
+```
+
+---
+
+# ⚙️ Instalação
 
 ## Pré-requisitos
 
+Antes de iniciar, tenha instalado:
+
 - Node.js 18+
-- PostgreSQL 13+
-- Conta/projeto no Supabase (para o upload de arquivos compactados)
+- Git
+- PostgreSQL 13+ configurado
+- Conta/projeto no Supabase (para upload de ZIP/RAR/PDF)
 
 ---
 
-## Instalação
+## Clonar o projeto
 
 ```bash
-git clone <url-do-repositorio>
-cd Sistema de Chamados
+git clone https://github.com/usuario/Sistema-de-Chamados-Empresarial.git
+```
+
+Acesse a pasta:
+
+```bash
+cd Sistema-de-Chamados-Empresarial
+```
+
+---
+
+## Instalar dependências
+
+```bash
 npm install
 ```
 
-Dependências esperadas (adicione ao `package.json` caso ainda não estejam listadas):
+Dependências principais usadas no projeto:
 
 ```bash
 npm install express express-session pg bcrypt multer express-validator xss dotenv @supabase/supabase-js disposable-email-domains-js
@@ -135,34 +192,32 @@ npm install express express-session pg bcrypt multer express-validator xss doten
 
 ---
 
-## Variáveis de ambiente
+# 🔐 Configuração do Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-# Servidor
 PORT=3000
-SESSION_SECRET=troque_por_um_valor_aleatorio_seguro
 
-# PostgreSQL
-DATABASE_URL=postgres://usuario:senha@localhost:5432/insidebox
+DATABASE_URL=postgres://usuario:senha@localhost:5432/sistema-de-chamados
 
-# Supabase
-SUPABASE_URL=https://seu-projeto.supabase.co
-SUPABASE_KEY=sua_service_role_ou_anon_key
+SESSION_SECRET=sua_chave_secreta
+
+STORAGE_URL=https://seu-projeto.supabase.co
+STORAGE_KEY=sua_service_role_ou_anon_key
 ```
 
 ---
 
-## Banco de dados
+# 🗄️ Banco de Dados
 
-O script completo de criação das tabelas está em [`schema.sql`](./schema.sql). Para aplicar:
+O script completo de criação de tabelas está em [`database/schema.sql`](./schema.sql). Para aplicar:
 
 ```bash
 psql -U seu_usuario -d insidebox -f schema.sql
 ```
 
-### Tabelas
+## Tabelas
 
 | Tabela                | Descrição                                              |
 |------------------------|---------------------------------------------------------|
@@ -172,74 +227,253 @@ psql -U seu_usuario -d insidebox -f schema.sql
 | `chamado_anexos`       | Arquivos anexados a um chamado                          |
 | `chamado_comentarios`  | Comentários/acompanhamento de um chamado                |
 
-Todas as chaves estrangeiras usam `ON DELETE CASCADE` (exceto `autor_id` em `chamado_comentarios`, que usa `SET NULL`), e as tabelas `users` e `chamados` possuem gatilhos (`trigger`) para atualizar automaticamente `updated_at` / `atualizado_em`.
+Todas as chaves estrangeiras usam `ON DELETE CASCADE` (exceto `autor_id` em `chamado_comentarios`, que usa `SET NULL`). As tabelas `users` e `chamados` possuem *triggers* que atualizam automaticamente `updated_at` / `atualizado_em`.
 
 ---
 
-## Rotas da API
+# ▶️ Executando o Projeto
 
-### Autenticação (`/auth`)
-| Método | Rota              | Descrição                        |
-|--------|-------------------|------------------------------------|
-| POST   | `/auth/register`  | Cria uma conta                     |
-| POST   | `/auth/login`     | Autentica e cria sessão            |
-| POST   | `/auth/logout`    | Encerra a sessão                   |
+Modo desenvolvimento:
 
-### Usuário (protegidas por `isAuthenticated`)
+```bash
+npm run dev
+```
+
+ou:
+
+```bash
+npm start
+```
+
+Servidor disponível em:
+
+```
+http://localhost:3000
+```
+
+---
+
+# 📚 Documentação da API
+
+## Autenticação
+
+### Criar usuário
+
+```
+POST /auth/register
+```
+
+Exemplo de envio:
+
+```json
+{
+  "name": "Usuário Teste",
+  "email": "usuario@email.com",
+  "password": "Senha123"
+}
+```
+
+---
+
+### Login
+
+```
+POST /auth/login
+```
+
+Exemplo de envio:
+
+```json
+{
+  "email": "usuario@email.com",
+  "password": "Senha123"
+}
+```
+
+Resposta:
+
+```json
+{
+  "message": "Login realizado com sucesso.",
+  "user": { "id": 1, "name": "Usuário Teste", "email": "usuario@email.com" }
+}
+```
+
+---
+
+### Logout
+
+```
+POST /auth/logout
+```
+
+---
+
+## Usuário (rotas protegidas)
+
 | Método | Rota              | Descrição                          |
 |--------|-------------------|--------------------------------------|
 | GET    | `/profile`        | Retorna dados do usuário logado      |
 | POST   | `/avatar`         | Atualiza o avatar (máx. 2MB)         |
 | GET    | `/stream/:video`  | Streaming de vídeo (suporte a Range) |
 
-### Admin (protegidas por `isAuthenticated` + `admin`)
+---
+
+## Admin (rotas protegidas + permissão de admin)
+
 | Método | Rota                        | Descrição                       |
 |--------|------------------------------|-----------------------------------|
 | POST   | `/videos`                    | Upload de vídeo                  |
 | PATCH  | `/api/chamados/:id/status`   | Atualiza status do chamado       |
 | DELETE | `/api/chamados/:id`          | Exclui um chamado                |
 
-### Chamados (`/api/chamados`)
-| Método | Rota                             | Descrição                               |
-|--------|-----------------------------------|--------------------------------------------|
-| POST   | `/api/chamados`                   | Cria chamado (até 5 anexos)                |
-| GET    | `/api/chamados`                   | Lista chamados (filtros por query string)  |
-| GET    | `/api/chamados/:id`                | Detalhe (com anexos e comentários)         |
-| POST   | `/api/chamados/:id/anexos`         | Adiciona anexos a um chamado existente     |
-| POST   | `/api/chamados/:id/comentarios`    | Adiciona comentário de acompanhamento      |
+---
 
-### Upload público
-| Método | Rota                | Descrição                                        |
-|--------|----------------------|----------------------------------------------------|
-| POST   | `/api/upload/zip`   | Envia ZIP/RAR/PDF/imagem para o Supabase Storage    |
+## Chamados
+
+### Criar chamado
+
+```
+POST /api/chamados
+```
+
+Exemplo de envio (multipart/form-data, até 5 anexos em `anexos`):
+
+```json
+{
+  "titulo": "Impressora não liga",
+  "categoria": "hardware",
+  "descricao": "A impressora do setor financeiro não liga."
+}
+```
+
+### Listar chamados
+
+```
+GET /api/chamados?status=aberto&categoria=hardware&prioridade=alta
+```
+
+### Detalhar chamado
+
+```
+GET /api/chamados/:id
+```
+
+### Adicionar anexos
+
+```
+POST /api/chamados/:id/anexos
+```
+
+### Adicionar comentário
+
+```
+POST /api/chamados/:id/comentarios
+```
+
+```json
+{
+  "mensagem": "Técnico a caminho.",
+  "autor_id": 1
+}
+```
 
 ---
 
-## Segurança
+## Upload público
 
-- Senhas armazenadas com **bcrypt** (nunca em texto puro)
-- Sessão regenerada no login para mitigar *session fixation*
-- Sanitização de entradas contra XSS antes de qualquer persistência
-- Whitelist de caracteres no nome (evita injeção de tags/scripts)
-- Bloqueio de e-mails temporários/descartáveis e checagem de domínio válido (MX)
-- Limite de tamanho de senha (8–15 caracteres) alinhado ao truncamento do bcrypt em 72 bytes
-- `usuario_id` do chamado sempre extraído da sessão (`req.session.userId`), nunca do corpo da requisição — evita que o cliente forje o autor
-- Validação de tipo MIME e extensão no upload de avatar
+```
+POST /api/upload/zip
+```
+
+Envia ZIP/RAR/PDF/imagem para o Supabase Storage (multipart/form-data, campo `arquivo`).
 
 ---
 
-## Pontos de atenção conhecidos
+# 🔒 Segurança
 
-Estes itens foram observados no código enviado e vale revisar antes de ir para produção:
+O projeto utiliza:
 
-- **`chamados.js`** usa `path.extname(...)` na configuração do `multer.diskStorage`, mas o módulo `path` não é importado no arquivo — adicione `const path = require('path');` no topo.
-- **`protectedRoutes.js`**, na rota `/avatar`, o `UPDATE users SET avatar_url = ?, updated_at = NOW() WHERE id = ?` usa a sintaxe de placeholders do MySQL (`?`). Como o projeto está em PostgreSQL, o correto é `$1`, `$2` (como usado no restante do `userModel.js`).
-- **`adminController.js`** enviado está vazio — o `adminController` referenciado em `protectedRoutes.js` na prática aponta para `userModel.js` (`uploadVideo`); confirme se essa é a intenção ou se falta implementar o controller dedicado.
-- **`authMiddleware.js`**: no bloco `admin`, quando o usuário não é admin, a rota é redirecionada (`res.redirect('/acesso-negado')`) em vez de retornar `403 JSON` — ok para páginas HTML, mas pode quebrar chamadas de API feitas via `fetch`.
-- **Tabela `chamados`**: `numero` é preenchido em um segundo `UPDATE` logo após o `INSERT`; se preferir atomicidade total, considere uma *sequence* dedicada ou um trigger `AFTER INSERT`.
+- Hash de senha com **bcrypt** (nunca texto puro)
+- Regeneração de sessão no login (proteção contra *session fixation*)
+- Sanitização anti-XSS em todas as entradas de texto antes da validação
+- Whitelist de caracteres no nome (bloqueia tags/scripts)
+- Bloqueio de e-mails temporários/descartáveis e checagem de domínio (MX)
+- Limite de tamanho de senha alinhado ao truncamento do bcrypt (72 bytes)
+- `usuario_id` do chamado sempre extraído da sessão, nunca do corpo da requisição
+- Validação de tipo MIME e extensão no upload de avatar e arquivos
+- Variáveis de ambiente para credenciais e chaves sensíveis
+- Controle de permissões (usuário x admin)
 
 ---
 
-## Licença
+# 🧪 Testes
 
-Distribuído sob licença de sua escolha (ex.: MIT). Adicione um arquivo `LICENSE` na raiz do repositório.
+Executar testes:
+
+```bash
+npm test
+```
+
+---
+
+# 📈 Melhorias Futuras
+
+- [ ] Implementar recuperação de senha
+- [ ] Criar sistema de notificações (novo comentário, mudança de status)
+- [ ] Corrigir uso de `path` não importado em `routes/chamados.js`
+- [ ] Padronizar todas as queries para a sintaxe do PostgreSQL (`$1`, `$2`, ...)
+- [ ] Implementar `adminController.js` dedicado
+- [ ] Retornar respostas JSON consistentes no middleware `admin` (hoje faz `redirect`)
+- [ ] Melhorar testes automatizados
+- [ ] Criar aplicativo mobile
+- [ ] Implementar logs do sistema
+
+---
+
+# 🤝 Como Contribuir
+
+Contribuições são bem-vindas.
+
+1. Faça um fork do projeto
+
+2. Crie uma branch:
+
+```bash
+git checkout -b minha-feature
+```
+
+3. Faça suas alterações
+
+4. Commit:
+
+```bash
+git commit -m "Minha nova funcionalidade"
+```
+
+5. Envie para o GitHub:
+
+```bash
+git push origin minha-feature
+```
+
+6. Abra um Pull Request
+
+---
+
+# 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+---
+
+# 👨‍💻 Autor
+
+**Rikael Ribeiro de Araújo Moraes**
+
+- GitHub: https://github.com/rikaeldev
+- LinkedIn: https://linkedin.com/in/rikaeldev
+
+---
+
+⭐ Se este projeto foi útil, considere deixar uma estrela no repositório.
