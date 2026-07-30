@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InsideBox — Entrar</title>
+<title>Sistema de chamados — Entrar</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -212,7 +212,7 @@
         <path d="M3 8L14 14L25 8" stroke="#3b6df0" stroke-width="2" stroke-linejoin="round"/>
         <path d="M14 14V26" stroke="#3b6df0" stroke-width="2"/>
       </svg>
-      InsideBox
+   
     </div>
   </div>
 
@@ -229,7 +229,7 @@
           id="email"
           name="email"
           class="field"
-          placeholder="Email adress"
+          placeholder="Digite seu Email "
           autocomplete="email"
           required
         >
@@ -240,7 +240,7 @@
           id="password"
           name="password"
           class="field"
-          placeholder="Password"
+          placeholder="Senha"
           autocomplete="current-password"
           required
         >
@@ -249,7 +249,7 @@
         <div class="row">
           <label class="remember">
             <input type="checkbox" id="remember" name="remember">
-            Remember for 30 days
+            Preencher dados automáticos
           </label>
           <button type="button" class="forgot" id="forgotBtn">Esqueci minha senha</button>
         </div>
@@ -337,7 +337,7 @@
 
         if (res.ok) {
           showServerMsg('Login realizado com sucesso! Redirecionando...', 'success');
-          window.location.href = data.redirectTo || '/upload';
+          window.location.href = data.redirectTo || '/';
         } else {
           showServerMsg(data.message || 'Credenciais inválidas. Tente novamente.', 'error');
         }

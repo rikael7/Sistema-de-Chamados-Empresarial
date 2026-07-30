@@ -34,21 +34,21 @@ router.delete('/chamados/:id/',isAuthenticated, admin, chamadosController.deleta
 
 
 // Criar chamado (com até 5 fotos)
-router.post('/chamados', upload.array('anexos', 5), chamadosController.criarChamado);
+router.post('/chamados' ,isAuthenticated, upload.array('anexos', 5), chamadosController.criarChamado);
 
 // Listar chamados (aceita ?status=&categoria=&prioridade=)
-router.get('/chamados', chamadosController.listarChamados);
+router.get('/chamados', isAuthenticated, chamadosController.listarChamados);
 
 // Detalhe de um chamado (com anexos e comentários)
-router.get('/chamados/:id', chamadosController.buscarChamado);
+router.get('/chamados/:id', isAuthenticated, chamadosController.buscarChamado);
 
 // Adicionar mais fotos a um chamado existente
-router.post('/chamados/:id/anexos', chamadosController.adicionarAnexos);
+router.post('/chamados/:id/anexos', isAuthenticated, chamadosController.adicionarAnexos);
 
 // Atualizar status do chamado
 
 
 // Adicionar comentário/observação de acompanhamento
-router.post('/chamados/:id/comentarios', chamadosController.adicionarComentario);
+router.post('/chamados/:id/comentarios', isAuthenticated, chamadosController.adicionarComentario);
 
 module.exports = router;

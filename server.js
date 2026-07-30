@@ -106,10 +106,6 @@ app.get('/login', authtrue, (req, res) => {
 });
 
 
-app.get('/upload', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'upload.html'));
-});
-
 
 app.get('/register', authtrue, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'register.html'));
