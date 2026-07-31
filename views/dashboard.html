@@ -84,6 +84,7 @@
     color:#C2C9D6;
     cursor:pointer;
     transition:background .15s ease, color .15s ease;
+    text-decoration:none;
   }
   .nav-item svg{width:16px; height:16px; flex-shrink:0;}
   .nav-item.active{background:rgba(255,255,255,.08); color:#fff;}
@@ -135,12 +136,15 @@
     border:1px solid transparent;
     display:inline-flex; align-items:center; gap:8px;
     transition:transform .1s ease, background .15s ease;
+    text-decoration:none;
   }
   .btn:active{transform:translateY(1px);}
   .btn-primary{background:var(--accent); color:#fff;}
   .btn-primary:hover{background:#1D4B48;}
   .btn-ghost{background:var(--card); color:var(--ink); border-color:var(--line);}
   .btn-ghost:hover{background:#F5F7FA;}
+  .btn-admin{background:var(--ink); color:#fff;}
+  .btn-admin:hover{background:#2A324A;}
   .btn svg{width:15px; height:15px;}
 
   /* ---------------- Stats ---------------- */
@@ -465,6 +469,16 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.45c-.7.2-1.5.7-1.5 1.55" stroke-linecap="round"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         Ajuda
       </div>
+      <!--
+        Link de administração — fica escondido até confirmarmos via API que o
+        usuário logado é admin. A proteção real da rota /admin acontece no
+        backend (middleware isAuthenticated + admin no server.js); isso aqui
+        é só conveniência visual.
+      -->
+      <a href="/admin" class="nav-item" id="adminNavLink" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4Z"/></svg>
+        Administração
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -488,6 +502,14 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Buscar chamado, nº ou palavra-chave">
         </div>
+        <!--
+          Botão de administração no topbar, mesma lógica: só aparece se
+          /api/me/status confirmar isAdmin === true.
+        -->
+        <a href="/admin" class="btn btn-admin" id="adminBtn" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4Z"/></svg>
+          Administração
+        </a>
         <button class="btn btn-primary" id="openModalBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
           Abrir chamado
@@ -597,6 +619,26 @@
 
   var ticketList = document.getElementById('ticketList');
   var listCount = document.getElementById('listCount');
+
+  // ---------------- Verificar se o usuário é admin ----------------
+  // GET /api/me/status — usado só para decidir se mostra o botão/link de admin.
+  // A proteção de verdade da rota /admin é feita pelo backend (middleware admin).
+  function checkAdminStatus(){
+    fetch(API_BASE + '/me/status')
+      .then(function(res){
+        if(!res.ok) throw new Error('Falha ao verificar status');
+        return res.json();
+      })
+      .then(function(data){
+        if(data.isAdmin){
+          document.getElementById('adminBtn').style.display = 'inline-flex';
+          document.getElementById('adminNavLink').style.display = 'flex';
+        }
+      })
+      .catch(function(){
+        // silencioso — se falhar, os elementos de admin simplesmente não aparecem
+      });
+  }
 
   // ---------------- Carregar chamados do backend ----------------
   // GET /api/chamados
@@ -933,6 +975,7 @@
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
   }
 
+  checkAdminStatus();
   loadTickets();
 })();
 </script>

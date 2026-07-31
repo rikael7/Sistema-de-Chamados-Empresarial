@@ -8,9 +8,9 @@ const path = require('path');
 
 
 
-// Middlewares de validação/sanitização deste módulo
+// Mcontroler
 const chamadosController = require('../controllers/chamadosController');
-
+const { statusUsuario } = require('../controllers/chamadosController');
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -44,6 +44,8 @@ router.delete('/chamados/:id/',isAuthenticated, admin, chamadosController.deleta
 
 
 
+// verifica se o usar é admin 
+router.get('/me/status', isAuthenticated, statusUsuario);
 
 // Listar chamados (aceita ?status=&categoria=&prioridade=)
 router.get('/chamados', isAuthenticated,  chamadosController.listarChamados);

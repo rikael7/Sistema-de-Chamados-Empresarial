@@ -5,6 +5,8 @@ const { pool } = require('../config/dbpg');
 
 
 
+
+
 // Formata o número exibido no dashboard, ex: 42 -> "OS-0042"
 function formatarNumero(id) {
   return 'OS-' + String(id).padStart(4, '0');
@@ -69,6 +71,37 @@ async function deletarChamado(req, res) {
 // POST /api/chamados
 // Cria um novo chamado. Aceita multipart/form-data com anexos[].
 // ------------------------------------------------------------
+
+// verifica se o usuario logado tem admin 
+// verifica se o usuario logado tem admin
+async function statusUsuario(req, res) {
+  const usuarioId = req.session?.userId;
+
+  if (!usuarioId) {
+    return res.status(401).json({ erro: 'Sessão inválida ou expirada' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT adm FROM users WHERE id = $1',
+      [usuarioId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ erro: 'Usuário não encontrado' });
+    }
+
+    const isAdmin = result.rows[0].adm === true;
+
+    return res.json({ isAdmin });
+  } catch (erro) {
+    console.error('Erro ao buscar status do usuário:', erro);
+    return res.status(500).json({ erro: 'Erro ao buscar status do usuário' });
+  }
+}
+
+module.exports = { statusUsuario };
+
 
 // novo criar chamado 
 async function criarChamado(req, res) {
@@ -338,4 +371,5 @@ module.exports = {
   atualizarStatus,
   deletarChamado,
   adicionarComentario,
+  statusUsuario 
 };
