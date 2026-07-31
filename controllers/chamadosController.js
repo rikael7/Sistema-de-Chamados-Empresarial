@@ -2,6 +2,9 @@
 const { pool } = require('../config/dbpg');
 
 
+
+
+
 // Formata o número exibido no dashboard, ex: 42 -> "OS-0042"
 function formatarNumero(id) {
   return 'OS-' + String(id).padStart(4, '0');
@@ -69,6 +72,7 @@ async function deletarChamado(req, res) {
 
 // novo criar chamado 
 async function criarChamado(req, res) {
+    
   const { titulo, categoria, descricao } = req.body;
 
   if (!titulo || !categoria || !descricao) {
@@ -268,6 +272,7 @@ async function adicionarAnexos(req, res) {
 // Atualiza o status do chamado (aberto | andamento | resolvido).
 // ------------------------------------------------------------
 async function atualizarStatus(req, res) {
+
   const { id } = req.params;
   const { status } = req.body;
 

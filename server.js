@@ -1,11 +1,14 @@
 require('dotenv').config();
 
+
+
+
 const express = require('express');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
 
-const { sanitizeBody } = require('./middleware/sanitize');
+const { sanitizeBody, sanitizeQuery } = require('./middleware/sanitize');
 const { isAuthenticated, admin } = require('./middleware/authMiddleware');
 
 // middleware para bloquear usuario autenticado de entrar na rota get de register e em login
@@ -56,7 +59,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Sanitização
+
+// Sanitização
 app.use(sanitizeBody);
+app.use(sanitizeQuery);
+
 
 
 // Sessões PostgreSQL
@@ -144,7 +151,6 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
     res.redirect("/404");
 });
-
 
 
 

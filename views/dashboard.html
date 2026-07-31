@@ -537,7 +537,7 @@
     <form class="modal-body" id="ticketForm">
       <div class="field">
         <label for="titulo">Título do problema</label>
-        <input type="text" id="titulo" name="titulo" placeholder="Ex: Impressora do 3º andar não liga" required>
+        <input type="text" id="titulo" name="titulo" minlength="5" maxlength="20"  placeholder="Ex: Impressora do 3º andar não liga" required>
       </div>
 
       <div class="field">
@@ -555,7 +555,7 @@
 
       <div class="field">
         <label for="descricao">Descrição</label>
-        <textarea id="descricao" name="descricao" placeholder="Explique o que aconteceu, onde e desde quando" required></textarea>
+        <textarea id="descricao" name="descricao" minLength="10" maxLength="3000" placeholder="Explique o que aconteceu, onde e desde quando" required></textarea>
       </div>
 
       <div class="field">
@@ -751,7 +751,13 @@
       body: JSON.stringify({ status: novoStatus })
     })
       .then(function(res){
-        if(!res.ok) throw new Error('Falha ao atualizar status');
+        if(!res.ok){
+          return res.json()
+            .catch(function(){ return null; })
+            .then(function(errBody){
+              throw new Error(extractErrorMessage(errBody, 'Falha ao atualizar status'));
+            });
+        }
         return res.json();
       })
       .then(function(){
@@ -759,10 +765,14 @@
         showToast('Status atualizado para "' + statusLabel[novoStatus] + '".');
         render();
       })
-      .catch(function(){
+      .catch(function(err){
         if(ticket) ticket.status = statusAnterior;
-        showToast('Não foi possível atualizar o status. Tente novamente.');
+        var msg = (err && err.message) ? err.message : 'Não foi possível atualizar o status. Tente novamente.';
+        showToast(msg);
         render();
+      })
+      .finally(function(){
+        select.disabled = false;
       });
   });
 
@@ -836,6 +846,18 @@
     renderThumbs();
   });
 
+  // ---------------- Helper: extrai mensagem de erro do JSON de validação ----------------
+  // Espera um corpo no formato: { erro: "Dados inválidos", detalhes: ["campo x limite y", ...] }
+  function extractErrorMessage(errBody, fallback){
+    if(errBody && Array.isArray(errBody.detalhes) && errBody.detalhes.length){
+      return errBody.detalhes.join(' | ');
+    }
+    if(errBody && typeof errBody.erro === 'string' && errBody.erro){
+      return errBody.erro;
+    }
+    return fallback;
+  }
+
   // ---------------- Submit ----------------
   document.getElementById('ticketForm').addEventListener('submit', function(e){
     e.preventDefault();
@@ -858,7 +880,14 @@
     // Prioridade não é mais escolhida aqui — o admin define depois pelo painel.
     fetch(API_BASE + '/chamados', { method: 'POST', body: formData })
       .then(function(res){
-        if(!res.ok) throw new Error('Falha no envio');
+        if(!res.ok){
+          // Lê o corpo JSON de erro (ex: validação de tamanho de campo) antes de rejeitar.
+          return res.json()
+            .catch(function(){ return null; }) // resposta pode não ser JSON válido
+            .then(function(errBody){
+              throw new Error(extractErrorMessage(errBody, 'Falha no envio'));
+            });
+        }
         return res.json();
       })
       .then(function(data){
@@ -878,8 +907,9 @@
         showToast('Chamado ' + data.id + ' criado com sucesso.');
         closeModal();
       })
-      .catch(function(){
-        showToast('Não foi possível enviar o chamado. Verifique a conexão com ' + API_BASE + '/chamados e tente novamente.');
+      .catch(function(err){
+        var msg = (err && err.message) ? err.message : ('Não foi possível enviar o chamado. Verifique a conexão com ' + API_BASE + '/chamados e tente novamente.');
+        showToast(msg);
       })
       .finally(function(){
         submitBtn.disabled = false;
@@ -897,7 +927,7 @@
   var toastMsg = document.getElementById('toastMsg');
   var toastTimer;
   function showToast(msg){
-    toastMsg.textContent = msg;
+    toastMsg.textContent = msg; // textContent — nunca innerHTML aqui, evita XSS mesmo com mensagens de erro do servidor
     toast.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
