@@ -8,15 +8,15 @@ const {
   handleValidationErrors
 } = require('../middleware/validators');
 
-
+const authtrue  = require('../middleware/authtrue')
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
 
 
 // POST /auth/register
-router.post('/register', 
-  handleValidationErrors, async (req, res) => {
+router.post('/register', registerValidationRules,
+  handleValidationErrors, authtrue, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 

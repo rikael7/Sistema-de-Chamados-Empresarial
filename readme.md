@@ -8,7 +8,7 @@ Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upl
 
 # 📌 Sobre o Projeto
 
-O Sistema de chamados nasceu com um sistema robusto de autenticação de usuarios visando a segurança e evoluiu para incluir um sistema de chamados/OS. A aplicação permite que usuários se cadastrem, façam login, enviem arquivos e abram chamados; enquanto administradores a prioridade e o tratamento de chamados da empresa, administradores administram prioridades e o status de cada atendimento.
+O Sistema de chamados nasceu com um sistema robusto de autenticação de usuarios visando a segurança e evoluiu para incluir um sistema de chamados/OS. A aplicação permite que usuários se cadastrem, façam login, enviem arquivos e abram chamados; enquanto administradires alteram prioridades e o status de cada atendimento.
 
 ## Funcionalidades
 
@@ -17,10 +17,9 @@ O Sistema de chamados nasceu com um sistema robusto de autenticação de usuario
 - ✅ Controle de permissões (usuário comum x admin)
 - ✅ Área administrativa (upload de vídeo, gestão de chamados)
 - ✅ Criação e gerenciamento de chamados (OS) com prioridade e status
-- ✅ Upload e armazenamento de arquivos (avatar, anexos, vídeos, ZIP/PDF via Supabase)
-- ✅ Validação de dados (nome, e-mail, senha, e-mails descartáveis, domínio MX)
+- ✅ Upload e armazenamento de arquivos ( anexos, vídeos, ZIP/PDF via Supabase)
+- ✅ Validação de dados (nome, e-mail, senha, domínio MX)
 - ✅ Sanitização anti-XSS em todas as entradas de texto
-- ✅ Streaming de vídeo com suporte a `Range`
 - ✅ Integração com banco de dados PostgreSQL
 
 ---

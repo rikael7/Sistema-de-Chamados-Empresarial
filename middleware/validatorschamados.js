@@ -13,7 +13,7 @@
 //   }
 // }
 
-function validate(schema) {
+function criarchamado(schema) {
   return (req, res, next) => {
     const erros = [];
 
@@ -71,4 +71,4 @@ function validate(schema) {
   };
 }
 
-module.exports = { validate };
+module.exports = { criarchamado };
