@@ -9,7 +9,7 @@ Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upl
 Quer testar o sistema em funcionamento?
 
 ➡️ **Acesse a versão em produção:**  
-**https://SEU-LINK-AQUI.onrender.com**
+**https://Embreve.onrender.com**
 
 > **Observação:** Na primeira visita o Render pode levar alguns segundos para iniciar o servidor, pois utiliza hibernação em planos gratuitos.
 
@@ -23,8 +23,42 @@ Estou trabalhando continuamente para manter toda a documentação e as capturas 
 
 Agradeço a compreensão! 😊
 
-
 ---
+# 📑 Sumário
+
+- [📌 Sobre o Projeto](#-sobre-o-projeto)
+- [🖥️ Demonstração](#️-demonstração-1)
+- [🏗️ Arquitetura do Projeto](#️-arquitetura-do-projeto)
+- [🔄 Fluxo da Aplicação](#-fluxo-da-aplicação)
+  - [👤 Cadastro de Usuário](#-cadastro-de-usuário)
+  - [🔑 Login](#-login)
+  - [🚪 Logout](#-logout)
+  - [📋 Consultar Chamados](#-consultar-chamados)
+  - [📄 Buscar Chamado](#-buscar-chamado)
+  - [➕ Criar Chamado](#-criar-chamado)
+  - [📎 Enviar Anexos](#-enviar-anexos)
+  - [👑 Fluxo das Rotas Administrativas](#-fluxo-das-rotas-administrativas)
+- [🛠️ Tecnologias Utilizadas](#️-tecnologias-utilizadas)
+- [📂 Estrutura de Pastas](#-estrutura-de-pastas)
+- [⚙️ Instalação](#️-instalação)
+- [🔐 Configuração do Ambiente](#-configuração-do-ambiente)
+- [🗄️ Banco de Dados](#️-banco-de-dados)
+- [▶️ Executando o Projeto](#️-executando-o-projeto)
+- [📚 Documentação da API](#-documentação-da-api)
+  - [Autenticação](#autenticação)
+  - [Usuário](#usuário-rotas-protegidas)
+  - [Admin](#admin-rotas-protegidas--permissão-de-admin)
+  - [Chamados](#chamados)
+  - [Upload Público](#upload-público)
+- [🔒 Segurança](#-segurança)
+- [🧪 Testes](#-testes)
+- [📈 Melhorias Futuras](#-melhorias-futuras)
+- [🤝 Como Contribuir](#-como-contribuir)
+- [📄 Licença](#-licença)
+- [👨‍💻 Autor](#-autor)
+
+
+
 
 # 📌 Sobre o Projeto
 
