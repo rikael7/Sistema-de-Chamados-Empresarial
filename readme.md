@@ -73,6 +73,266 @@ API Backend (Express)
 ```
 
 ---
+---
+
+# 🔄 Fluxo da Aplicação
+
+Abaixo está o fluxo de execução das principais requisições do sistema, desde a chegada da requisição até a resposta enviada ao cliente.
+
+---
+
+## 👤 Cadastro de Usuário
+
+```text
+Cliente
+   │
+   ▼
+POST /auth/register
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware (authtrue)
+   │
+   ▼
+Validação dos Dados
+(express-validator)
+   │
+   ▼
+Auth Controller
+(createUser)
+   │
+   ▼
+User Model
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 🔑 Login
+
+```text
+Cliente
+   │
+   ▼
+POST /auth/login
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Controller
+   │
+   ▼
+User Model
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Comparação da senha (bcrypt)
+   │
+   ▼
+Regeneração da Sessão
+   │
+   ▼
+Session Cookie
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 🚪 Logout
+
+```text
+Cliente
+   │
+   ▼
+POST /auth/logout
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Destruição da Sessão
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 📋 Consultar Chamados
+
+```text
+Cliente
+   │
+   ▼
+GET /api/chamados
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware
+   │
+   ▼
+Chamados Controller
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 📄 Buscar Chamado
+
+```text
+Cliente
+   │
+   ▼
+GET /api/chamados/:id
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware
+   │
+   ▼
+Chamados Controller
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## ➕ Criar Chamado
+
+```text
+Cliente
+   │
+   ▼
+POST /api/chamados
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware
+   │
+   ▼
+Chamados Controller
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 📎 Enviar Anexos
+
+```text
+Cliente
+   │
+   ▼
+POST /api/chamados/:id/anexos
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware
+   │
+   ▼
+Upload (Multer)
+   │
+   ▼
+Chamados Controller
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+---
+
+## 👑 Fluxo das Rotas Administrativas
+
+```text
+Cliente
+   │
+   ▼
+Requisição
+   │
+   ▼
+Express (app.js)
+   │
+   ▼
+Sanitize Middleware
+   │
+   ▼
+Auth Middleware
+   │
+   ▼
+Verificação de Administrador
+   │
+   ▼
+Controller
+   │
+   ▼
+PostgreSQL
+   │
+   ▼
+Resposta HTTP
+```
+
+> **Observação:** Todas as rotas protegidas exigem uma sessão válida. As rotas administrativas executam uma verificação adicional para confirmar que o usuário possui privilégios de administrador.
+
+---
+
+----
 
 # 🛠️ Tecnologias Utilizadas
 
