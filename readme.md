@@ -30,6 +30,9 @@ O Sistema de chamados nasceu com um sistema robusto de autenticação de usuario
 
 Exemplo:
 
+## Login recrutador
+![Telas](./docs/teladelogin.png)
+
 ## Tela do Login/Register/Rota inexistente
 ![Telas](./docs/telas.png)
 ![Telas](./docs/telas.PNG)
