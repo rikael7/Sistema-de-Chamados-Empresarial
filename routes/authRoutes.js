@@ -46,7 +46,7 @@ router.post('/register', registerValidationRules,
 
 // POST /auth/login
 router.post('/login', loginValidationRules,
-  handleValidationErrors, async (req, res) => {
+  handleValidationErrors, authtrue, async (req, res) => {
   try {
     const { email, password } = req.body;
 
