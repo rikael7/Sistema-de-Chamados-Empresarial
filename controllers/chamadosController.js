@@ -2,16 +2,10 @@
 const { pool } = require('../config/dbpg');
 
 
-
-
-
-
-
 // Formata o número exibido no dashboard, ex: 42 -> "OS-0042"
 function formatarNumero(id) {
-  return 'OS-' + String(id).padStart(4, '0');
+  return 'Chamado-' + String(id).padStart(4, '0');
 }
-
 
 // ADMIN CONTROLLER
 async function atualizarPrioridade(req, res) {
@@ -38,6 +32,33 @@ async function atualizarPrioridade(req, res) {
   }
 }
 
+// Atualiza o status do chamado (aberto | andamento | resolvido).
+async function atualizarStatus(req, res) {
+
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const statusValidos = ['aberto', 'andamento', 'resolvido'];
+  if (!statusValidos.includes(status)) {
+    return res.status(400).json({ erro: `status deve ser um de: ${statusValidos.join(', ')}` });
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE chamados SET status = $1 WHERE id = $2 RETURNING id, numero, status, atualizado_em',
+      [status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Chamado não encontrado' });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (erro) {
+    console.error('Erro ao atualizar status:', erro);
+    return res.status(500).json({ erro: 'Erro ao atualizar status' });
+  }
+}
 
 async function deletarChamado(req, res) {
   const { id } = req.params;
@@ -63,17 +84,9 @@ async function deletarChamado(req, res) {
   }
 }
 
-
-
-
-
-// ------------------------------------------------------------
-// POST /api/chamados
-// Cria um novo chamado. Aceita multipart/form-data com anexos[].
-// ------------------------------------------------------------
-
-// verifica se o usuario logado tem admin 
-// verifica se o usuario logado tem admin
+// ========================== public controller ===================
+// front verifica se o user é admin para exibir botão que leva
+// a pagina ao /admin
 async function statusUsuario(req, res) {
   const usuarioId = req.session?.userId;
 
@@ -100,10 +113,10 @@ async function statusUsuario(req, res) {
   }
 }
 
-module.exports = { statusUsuario };
-
-
-// novo criar chamado 
+// ------------------------------------------------------------
+// POST /api/chamados
+// Cria um novo chamado. Aceita multipart/form-data com anexos[].
+// ------------------------------------------------------------
 async function criarChamado(req, res) {
     
   const { titulo, categoria, descricao } = req.body;
@@ -297,37 +310,6 @@ async function adicionarAnexos(req, res) {
   } catch (erro) {
     console.error('Erro ao adicionar anexos:', erro);
     return res.status(500).json({ erro: 'Erro ao adicionar anexos' });
-  }
-}
-
-// ------------------------------------------------------------
-// PATCH /api/chamados/:id/status
-// Atualiza o status do chamado (aberto | andamento | resolvido).
-// ------------------------------------------------------------
-async function atualizarStatus(req, res) {
-
-  const { id } = req.params;
-  const { status } = req.body;
-
-  const statusValidos = ['aberto', 'andamento', 'resolvido'];
-  if (!statusValidos.includes(status)) {
-    return res.status(400).json({ erro: `status deve ser um de: ${statusValidos.join(', ')}` });
-  }
-
-  try {
-    const result = await pool.query(
-      'UPDATE chamados SET status = $1 WHERE id = $2 RETURNING id, numero, status, atualizado_em',
-      [status, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ erro: 'Chamado não encontrado' });
-    }
-
-    return res.json(result.rows[0]);
-  } catch (erro) {
-    console.error('Erro ao atualizar status:', erro);
-    return res.status(500).json({ erro: 'Erro ao atualizar status' });
   }
 }
 

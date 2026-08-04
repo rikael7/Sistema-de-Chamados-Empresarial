@@ -1,19 +1,21 @@
 require('dotenv').config();
-
-
-
-
 const express = require('express');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
 
+// =================
+// Import de Middlewares
+// =============
 const { sanitizeBody, sanitizeQuery } = require('./middleware/sanitize');
 const { isAuthenticated, admin } = require('./middleware/authMiddleware');
-
 // middleware para bloquear usuario autenticado de entrar na rota get de register e em login
 const authtrue  = require('./middleware/authtrue');
 
+
+// =================
+// Import de rotas
+// =============
 const authRoutes = require('./routes/authRoutes');
 const publicupload = require('./routes/publicupload');
 const protectedRoutes = require('./routes/protectedRoutes');
@@ -28,18 +30,13 @@ const PORT = process.env.PORT || 3000;
 // websocket
 // =============
 const http = require ('http');
-
-const { initDb } = require('./config/dbpg');
-
-
 const server = http.createServer(app);
-// setupWebSocket(server)
-
-// ============
 
 
 
-// PostgreSQL pool
+// =================
+// Pool do Postgree
+// =============
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
@@ -48,25 +45,30 @@ const pool = new Pool({
 });
 
 
-// Middlewares
+// =================
+// bloquear Payload gigante
+// =============
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ 
     extended: true, 
     limit: '100kb' 
 }));
 
+
+// =================
+// enviar front
+// =============
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+// =================
 // Sanitização
-
-// Sanitização
+// =============
 app.use(sanitizeBody);
 app.use(sanitizeQuery);
 
-
-
-// Sessões PostgreSQL
+// =================
+// Seções do Postgree
+// =============
 app.use(
     session({
         store: new pgSession({
@@ -94,7 +96,9 @@ app.use(
 );
 
 
-// FRONT END PRIVADO
+// =================
+// enviar front
+// =============
 
 app.get('/', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
@@ -106,12 +110,13 @@ app.get('/admin', isAuthenticated, admin, (req, res) => {
 
 
 
-// FRONT END PÚBLICO
+// =================
+// frontend publico
+// =============
 
 app.get('/login', authtrue, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
-
 
 
 app.get('/register', authtrue, (req, res) => {
@@ -124,17 +129,11 @@ app.get('/404', (req, res) => {
 });
 
 
-
 // ROTAS API
-
 app.use('/auth', authRoutes);
-app.use('/api', publicupload);
-app.use('/api', protectedRoutes);
-app.use('/api/profile', protectedRoutes);
 app.use('/api', chamados);
 
 
-////
 // Erro genérico
 app.use((err, req, res, next) => {
     console.error('Erro não tratado:', err);
@@ -144,9 +143,7 @@ app.use((err, req, res, next) => {
 });
 
 
-
 // se não encontrar nenhuma rota
-
 // Middleware 404 (sempre por último pois o node le de cima para baixo as rotas, caso não encontre nada vai cair nessa)
 app.use((req, res) => {
     res.redirect("/404");
@@ -154,16 +151,11 @@ app.use((req, res) => {
 
 
 
-initDb()
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`Servidor rodando em http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Erro ao iniciar:", err);
-    process.exit(1);
-  });
+
+
+server.listen(PORT, () => {
+ console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
 // ================
 
 

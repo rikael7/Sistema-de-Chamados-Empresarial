@@ -6,12 +6,9 @@ const multer = require('multer');
 
 const path = require('path');
 
-
-
-// Mcontroler
+// Controler
 const chamadosController = require('../controllers/chamadosController');
 const { statusUsuario } = require('../controllers/chamadosController');
-
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     cb(null, 'public/uploads/chamados');
@@ -20,7 +17,6 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   }
 });
-
 const upload = multer({
     storage,
     limits: {
@@ -31,12 +27,10 @@ const upload = multer({
 
 // Middleware
 const { isAuthenticated, admin } = require('../middleware/authMiddleware');
-
 const { criarchamado } = require('../middleware/validatorschamados');
 
-// admin route
+// admin routeS
 router.patch('/chamados/:id/status',isAuthenticated, admin, chamadosController.atualizarStatus);
-
 router.delete('/chamados/:id/',isAuthenticated, admin, chamadosController.deletarChamado);
 
 
@@ -44,7 +38,11 @@ router.delete('/chamados/:id/',isAuthenticated, admin, chamadosController.deleta
 
 
 
-// verifica se o usar é admin 
+
+
+// USUARIOS COMUNS ROUTES
+
+// front end verifica se o user é admin 
 router.get('/me/status', isAuthenticated, statusUsuario);
 
 // Listar chamados (aceita ?status=&categoria=&prioridade=)
@@ -52,10 +50,6 @@ router.get('/chamados', isAuthenticated,  chamadosController.listarChamados);
 
 // Detalhe de um chamado (com anexos e comentários)
 router.get('/chamados/:id', isAuthenticated,  chamadosController.buscarChamado);
-
-
-
-
 
 
 // POST
