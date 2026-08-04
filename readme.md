@@ -4,6 +4,26 @@
 
 Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upload de arquivos e um módulo de chamados técnicos com anexos, comentários, prioridades e status de atendimento.
 
+## 🚀 Demonstração
+
+Quer testar o sistema em funcionamento?
+
+➡️ **Acesse a versão em produção:**  
+**https://SEU-LINK-AQUI.onrender.com**
+
+> **Observação:** Na primeira visita o Render pode levar alguns segundos para iniciar o servidor, pois utiliza hibernação em planos gratuitos.
+
+## 🚧 Projeto em Desenvolvimento
+
+> **Este projeto está em constante evolução.**
+
+Novas funcionalidades, melhorias, correções e refatorações são adicionadas frequentemente. Durante esse processo, algumas telas, recursos e imagens presentes na pasta `docs` podem sofrer alterações e estarem diferentes do projeto.
+
+Estou trabalhando continuamente para manter toda a documentação e as capturas de tela atualizadas, mas pode haver um pequeno intervalo entre as mudanças no código e a atualização da documentação.
+
+Agradeço a compreensão! 😊
+
+
 ---
 
 # 📌 Sobre o Projeto
