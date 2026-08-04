@@ -1,6 +1,6 @@
 # 🚀 Sistema de Chamados Empresarial
 
-> Plataforma empresarial com sistema de chamados (OS) integrado, permitindo cadastro/login de usuários, upload de vídeos, abertura e acompanhamento de chamados, e um painel administrativo completo.
+> Plataforma empresarial com sistema de chamados (OS) integrado, permitindo cadastro/login de usuários, upload de arquivos, abertura e acompanhamento de chamados, e um painel administrativo completo.
 
 Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upload de arquivos e um módulo de chamados técnicos com anexos, comentários, prioridades e status de atendimento.
 
@@ -29,8 +29,8 @@ O Sistema de chamados nasceu com um sistema robusto de autenticação de usuario
 
 Exemplo:
 
-![Tela de login](./docs/img/dashboardadmin.PNG)
-![Tela de upload](./docs/img/dashboarduser.PNG)
+![Tela de Admin](./docs/dashboardadmin.png)
+![Tela de User](./docs/dashboarduser.png)
 
 ---
 
