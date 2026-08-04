@@ -12,7 +12,7 @@ const { isAuthenticated, admin } = require('./middleware/authMiddleware');
 // middleware para bloquear usuario autenticado de entrar na rota get de register e em login
 const authtrue  = require('./middleware/authtrue');
 
-
+//
 // =================
 // Import de rotas
 // =============
