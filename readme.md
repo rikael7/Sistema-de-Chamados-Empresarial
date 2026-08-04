@@ -29,8 +29,8 @@ O Sistema de chamados nasceu com um sistema robusto de autenticação de usuario
 
 Exemplo:
 
-![Tela de Admin](./docs/dashboardadmin.png)
-![Tela de User](./docs/dashboarduser.png)
+![Tela de Admin](./docs/dashboardadmin.PNG)
+![Tela de User](./docs/dashboarduser.PNG)
 
 ---
 
