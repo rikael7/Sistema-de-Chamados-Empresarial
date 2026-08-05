@@ -1,14 +1,14 @@
-# 🚀 Sistema de Chamados Empresarial
+#  Sistema de Chamados Empresarial
 
 > Plataforma empresarial com sistema de chamados (OS) integrado, permitindo cadastro/login de usuários, upload de arquivos, abertura e acompanhamento de chamados, e um painel administrativo completo.
 
 Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upload de arquivos e um módulo de chamados técnicos com anexos, comentários, prioridades e status de atendimento.
 
-## 🚀 Demonstração
+##  Demonstração
 
 Quer testar o sistema em funcionamento?
 
-➡️ **Acesse a versão em produção:**  
+ **Acesse a versão em produção:**  
 **https://Embreve.onrender.com**
 
 > **Observação:** Na primeira visita o Render pode levar alguns segundos para iniciar o servidor, pois utiliza hibernação em planos gratuitos.
@@ -17,68 +17,68 @@ Quer testar o sistema em funcionamento?
 
 > **Este projeto está em constante evolução.**
 
-Novas funcionalidades, melhorias, correções e refatorações são adicionadas frequentemente. Durante esse processo, algumas telas, recursos e imagens presentes na pasta `docs` podem sofrer alterações e estarem diferentes do projeto.
+Novas funcionalidades, melhorias, correções e refatorações são adicionadas frequentemente. Durante esse processo, algumas telas, recursos e imagens presentes na pasta `docs` podem sofrer alterações e estarem diferentes do projeto real, portanto peço compreensão.
 
-Estou trabalhando continuamente para manter toda a documentação e as capturas de tela atualizadas, mas pode haver um pequeno intervalo entre as mudanças no código e a atualização da documentação.
+Estou trabalhando continuamente para manter toda a documentação e as capturas de tela atualizadas, mas pode haver um pequeno intervalo entre as mudanças no código e a atualização da documentação, por ser um projeto independente pequenas divergências podem acontecer.
 
-Agradeço a compreensão! 😊
+Agradeço a compreensão! =)
 
 ---
-# 📑 Sumário
+#  Sumário
 
-- [📌 Sobre o Projeto](#-sobre-o-projeto)
-- [🖥️ Demonstração](#️-demonstração-1)
-- [🏗️ Arquitetura do Projeto](#️-arquitetura-do-projeto)
-- [🔄 Fluxo da Aplicação](#-fluxo-da-aplicação)
-  - [👤 Cadastro de Usuário](#-cadastro-de-usuário)
-  - [🔑 Login](#-login)
-  - [🚪 Logout](#-logout)
-  - [📋 Consultar Chamados](#-consultar-chamados)
-  - [📄 Buscar Chamado](#-buscar-chamado)
-  - [➕ Criar Chamado](#-criar-chamado)
-  - [📎 Enviar Anexos](#-enviar-anexos)
-  - [👑 Fluxo das Rotas Administrativas](#-fluxo-das-rotas-administrativas)
-- [🛠️ Tecnologias Utilizadas](#️-tecnologias-utilizadas)
-- [📂 Estrutura de Pastas](#-estrutura-de-pastas)
-- [⚙️ Instalação](#️-instalação)
-- [🔐 Configuração do Ambiente](#-configuração-do-ambiente)
-- [🗄️ Banco de Dados](#️-banco-de-dados)
-- [▶️ Executando o Projeto](#️-executando-o-projeto)
-- [📚 Documentação da API](#-documentação-da-api)
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [ Demonstração](#️-demonstração-1)
+- [ Arquitetura do Projeto](#️-arquitetura-do-projeto)
+- [ Fluxo da Aplicação](#-fluxo-da-aplicação)
+  - [ Cadastro de Usuário](#-cadastro-de-usuário)
+  - [ Login](#-login)
+  - [ Logout](#-logout)
+  - [ Consultar Chamados](#-consultar-chamados)
+  - [ Buscar Chamado](#-buscar-chamado)
+  - [ Criar Chamado](#-criar-chamado)
+  - [ Enviar Anexos](#-enviar-anexos)
+  - [ Fluxo das Rotas Administrativas](#-fluxo-das-rotas-administrativas)
+- [ Tecnologias Utilizadas](#️-tecnologias-utilizadas)
+- [ Estrutura de Pastas](#-estrutura-de-pastas)
+- [ Instalação](#️-instalação)
+- [ Configuração do Ambiente](#-configuração-do-ambiente)
+- [ Banco de Dados](#️-banco-de-dados)
+- [ Executando o Projeto](#️-executando-o-projeto)
+- [ Documentação da API](#-documentação-da-api)
   - [Autenticação](#autenticação)
   - [Usuário](#usuário-rotas-protegidas)
   - [Admin](#admin-rotas-protegidas--permissão-de-admin)
   - [Chamados](#chamados)
   - [Upload Público](#upload-público)
-- [🔒 Segurança](#-segurança)
-- [🧪 Testes](#-testes)
-- [📈 Melhorias Futuras](#-melhorias-futuras)
-- [🤝 Como Contribuir](#-como-contribuir)
-- [📄 Licença](#-licença)
-- [👨‍💻 Autor](#-autor)
+- [ Segurança](#-segurança)
+- [ Testes](#-testes)
+- [ Melhorias Futuras](#-melhorias-futuras)
+- [ Como Contribuir](#-como-contribuir)
+- [ Licença](#-licença)
+- [ Autor](#-autor)
 
 
 
 
-# 📌 Sobre o Projeto
+#  Sobre o Projeto
 
 O Sistema de chamados nasceu com um sistema robusto de autenticação de usuarios visando a segurança e evoluiu para incluir um sistema de chamados/OS. A aplicação permite que usuários se cadastrem, façam login, enviem arquivos e abram chamados; enquanto administradires alteram prioridades e o status de cada atendimento.
 
 ## Funcionalidades
 
-- ✅ Cadastro e autenticação de usuários (sessão + bcrypt)
-- ✅ Sistema de login com regeneração de sessão (anti session-fixation)
-- ✅ Controle de permissões (usuário comum x admin)
-- ✅ Área administrativa (upload de vídeo, gestão de chamados)
-- ✅ Criação e gerenciamento de chamados (OS) com prioridade e status
-- ✅ Upload e armazenamento de arquivos ( anexos, vídeos, ZIP/PDF via Supabase)
-- ✅ Validação de dados (nome, e-mail, senha, domínio MX)
-- ✅ Sanitização anti-XSS em todas as entradas de texto
-- ✅ Integração com banco de dados PostgreSQL
+- ✔ Cadastro e autenticação de usuários (sessão + bcrypt)
+- ✔ Sistema de login com regeneração de sessão (anti session-fixation)
+- ✔ Controle de permissões (usuário comum x admin)
+- ✔ Área administrativa (upload de vídeo, gestão de chamados)
+- ✔ Criação e gerenciamento de chamados (OS) com prioridade e status
+- ✔ Upload e armazenamento de arquivos ( anexos, vídeos, ZIP/PDF via Supabase)
+- ✔ Validação de dados (nome, e-mail, senha, domínio MX)
+- ✔ Sanitização anti-XSS em todas as entradas de texto
+- ✔ Integração com banco de dados PostgreSQL
 
 ---
 
-# 🖥️ Demonstração
+#  Demonstração
 
 
 
@@ -89,7 +89,6 @@ Exemplo:
 
 ## Tela do Login/Register/Rota inexistente
 ![Telas](./docs/telas.png)
-![Telas](./docs/telas.PNG)
 
 ## Tela do usuário 
 ![Tela de User](./docs/dashboarduser.PNG)
@@ -98,10 +97,9 @@ Exemplo:
 ![Tela de Admin](./docs/dashboardadmin.PNG)
 
 
-
 ---
 
-# 🏗️ Arquitetura do Projeto
+#  Arquitetura do Projeto
 
 ```
 Usuário
@@ -129,13 +127,13 @@ API Backend (Express)
 ---
 ---
 
-# 🔄 Fluxo da Aplicação
+#  Fluxo da Aplicação
 
 Abaixo está o fluxo de execução das principais requisições do sistema, desde a chegada da requisição até a resposta enviada ao cliente.
 
 ---
 
-## 👤 Cadastro de Usuário
+##  Cadastro de Usuário
 
 ```text
 Cliente
@@ -172,7 +170,7 @@ Resposta HTTP
 
 ---
 
-## 🔑 Login
+##  Login
 
 ```text
 Cliente
@@ -210,7 +208,7 @@ Resposta HTTP
 
 ---
 
-## 🚪 Logout
+##  Logout
 
 ```text
 Cliente
@@ -233,7 +231,7 @@ Resposta HTTP
 
 ---
 
-## 📋 Consultar Chamados
+##  Consultar Chamados
 
 ```text
 Cliente
@@ -262,7 +260,7 @@ Resposta HTTP
 
 ---
 
-## 📄 Buscar Chamado
+##  Buscar Chamado
 
 ```text
 Cliente
@@ -291,7 +289,7 @@ Resposta HTTP
 
 ---
 
-## ➕ Criar Chamado
+##  Criar Chamado
 
 ```text
 Cliente
@@ -320,7 +318,7 @@ Resposta HTTP
 
 ---
 
-## 📎 Enviar Anexos
+##  Enviar Anexos
 
 ```text
 Cliente
@@ -352,7 +350,7 @@ Resposta HTTP
 
 ---
 
-## 👑 Fluxo das Rotas Administrativas
+##  Fluxo das Rotas Administrativas
 
 ```text
 Cliente
@@ -388,7 +386,7 @@ Resposta HTTP
 
 ----
 
-# 🛠️ Tecnologias Utilizadas
+# Tecnologias Utilizadas
 
 ## Backend
 
@@ -422,7 +420,7 @@ Resposta HTTP
 
 ---
 
-# 📂 Estrutura de Pastas
+#  Estrutura de Pastas
 
 ```
 InsideBox
@@ -477,7 +475,7 @@ InsideBox
 
 ---
 
-# ⚙️ Instalação
+#  Instalação
 
 ## Pré-requisitos
 
@@ -485,7 +483,7 @@ Antes de iniciar, tenha instalado:
 
 - Node.js 18+
 - Git
-- PostgreSQL 13+ configurado
+- PostgreSQL 13+ configurado (De preferência em Cloud)
 - Conta/projeto no Supabase (para upload de ZIP/RAR/PDF)
 
 ---
@@ -518,24 +516,21 @@ npm install express express-session pg bcrypt multer express-validator xss doten
 
 ---
 
-# 🔐 Configuração do Ambiente
+#  Configuração do Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 PORT=3000
-
 DATABASE_URL=postgres://usuario:senha@localhost:5432/sistema-de-chamados
-
 SESSION_SECRET=sua_chave_secreta
-
 STORAGE_URL=https://seu-projeto.supabase.co
 STORAGE_KEY=sua_service_role_ou_anon_key
 ```
 
 ---
 
-# 🗄️ Banco de Dados
+# Banco de Dados
 
 O script completo de criação de tabelas está em [`database/schema.sql`](./schema.sql). Para aplicar:
 
@@ -549,7 +544,7 @@ psql -U seu_usuario -d insidebox -f schema.sql
 |------------------------|---------------------------------------------------------|
 | `users`                | Usuários, credenciais e flag de admin (`adm`)           |
 | `videos`               | Vídeos enviados pelo admin                              |
-| `chamados`             | Chamados/OS (título, categoria, status, prioridade)     |
+| `chamados`             | Chamados/OS (título, categoria, status,    	prioridade)     
 | `chamado_anexos`       | Arquivos anexados a um chamado                          |
 | `chamado_comentarios`  | Comentários/acompanhamento de um chamado                |
 
@@ -557,7 +552,7 @@ Todas as chaves estrangeiras usam `ON DELETE CASCADE` (exceto `autor_id` em `cha
 
 ---
 
-# ▶️ Executando o Projeto
+#  Executando o Projeto
 
 Modo desenvolvimento:
 
@@ -579,7 +574,7 @@ http://localhost:3000
 
 ---
 
-# 📚 Documentação da API
+#  Documentação da API
 
 ## Autenticação
 
@@ -641,7 +636,6 @@ POST /auth/logout
 |--------|-------------------|--------------------------------------|
 | GET    | `/profile`        | Retorna dados do usuário logado      |
 | POST   | `/avatar`         | Atualiza o avatar (máx. 2MB)         |
-| GET    | `/stream/:video`  | Streaming de vídeo (suporte a Range) |
 
 ---
 
@@ -649,7 +643,6 @@ POST /auth/logout
 
 | Método | Rota                        | Descrição                       |
 |--------|------------------------------|-----------------------------------|
-| POST   | `/videos`                    | Upload de vídeo                  |
 | PATCH  | `/api/chamados/:id/status`   | Atualiza status do chamado       |
 | DELETE | `/api/chamados/:id`          | Exclui um chamado                |
 
@@ -716,7 +709,7 @@ Envia ZIP/RAR/PDF/imagem para o Supabase Storage (multipart/form-data, campo `ar
 
 ---
 
-# 🔒 Segurança
+#  Segurança
 
 O projeto utiliza:
 
@@ -733,7 +726,7 @@ O projeto utiliza:
 
 ---
 
-# 🧪 Testes
+#  Testes
 
 Executar testes:
 
@@ -743,7 +736,7 @@ npm test
 
 ---
 
-# 📈 Melhorias Futuras
+#  Melhorias Futuras
 
 - [ ] Implementar recuperação de senha
 - [ ] Criar sistema de notificações (novo comentário, mudança de status)
@@ -757,7 +750,7 @@ npm test
 
 ---
 
-# 🤝 Como Contribuir
+#  Como Contribuir
 
 Contribuições são bem-vindas.
 
@@ -774,7 +767,7 @@ git checkout -b minha-feature
 4. Commit:
 
 ```bash
-git commit -m "Minha nova funcionalidade"
+git commit -m "feat:Minha nova funcionalidade"
 ```
 
 5. Envie para o GitHub:
@@ -787,13 +780,13 @@ git push origin minha-feature
 
 ---
 
-# 📄 Licença
+#  Licença
 
 Este projeto está sob a licença MIT.
 
 ---
 
-# 👨‍💻 Autor
+#  Autor
 
 **Rikael Ribeiro de Araújo Moraes**
 
@@ -802,4 +795,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-⭐ Se este projeto foi útil, considere deixar uma estrela no repositório.
+Se este projeto foi útil, considere deixar uma estrela no repositório.
