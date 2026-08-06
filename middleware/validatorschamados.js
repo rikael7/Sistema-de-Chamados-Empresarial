@@ -13,7 +13,7 @@
 //   }
 // }
 
-function criarchamado(schema) {
+function chamadovalidator(schema) {
   return (req, res, next) => {
     const erros = [];
 
@@ -71,4 +71,4 @@ function criarchamado(schema) {
   };
 }
 
-module.exports = { criarchamado };
+module.exports = { chamadovalidator };

@@ -27,7 +27,7 @@ const upload = multer({
 
 // Middleware
 const { isAuthenticated, admin } = require('../middleware/authMiddleware');
-const { criarchamado } = require('../middleware/validatorschamados');
+const { chamadovalidator } = require('../middleware/validatorschamados');
 
 // admin routeS
 router.patch('/chamados/:id/status',isAuthenticated, admin, chamadosController.atualizarStatus);
@@ -54,7 +54,7 @@ router.get('/chamados/:id', isAuthenticated,  chamadosController.buscarChamado);
 
 // POST
 // Criar chamado (com até 5 fotos)
-router.post('/chamados' ,   upload.array('anexos', 5), isAuthenticated, criarchamado({
+router.post('/chamados' ,   upload.array('anexos', 5), isAuthenticated, chamadovalidator({
     titulo: { required: true, type: 'string', minLength: 6, maxLength: 20 },
     categoria: { required: true, type: 'string', minLength: 6, maxLength: 50 },
     descricao: { required: true, type: 'string', minLength: 10, maxLength: 3000 }

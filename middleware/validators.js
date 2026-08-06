@@ -11,18 +11,24 @@ const { isDisposableEmail } = require('disposable-email-domains-js');
 async function domainExists(email) {
     const domain = email.split('@')[1];
 
+   console.log('Domínio:', domain);
+
+
     try {
         const mx = await dns.resolveMx(domain);
-
+        console.log('MX:', mx);
         if (mx.length > 0) {
             return true;
         }
-    } catch {}
+        
+    } catch (err) 
+  { console.error('Erro MX:', err); }
+  
 
     try {
         await dns.resolve4(domain);
         return true;
-    } catch {}
+    } catch (err) { console.error('Erro A:', err); }
 
     return false;
 }
@@ -55,31 +61,8 @@ const registerValidationRules = [
     .notEmpty().withMessage('O email é obrigatório.')
     .isEmail().withMessage('Email inválido.')
     .isLength({ min: 5, max: 254 }).withMessage('Email deve conter entre 5 e 254 caracteres.')
-    .normalizeEmail() // remove variações (Maiusculas, pontos no gmail, etc.)
+    .normalizeEmail(), // remove variações (Maiusculas, pontos no gmail, etc.)
     
-    //bloqueia email temporário
-      .custom((email) => {
-    if (isDisposableEmail(email)) {
-      throw new Error('E-mails temporários não são permitidos.');
-    }
-
-    return true;
-  })
-// ////////
-
-     // validar se o email tem domínio válido (MX record)
-    .custom(async (email) => {
-      const exists = await domainExists(email);
-
-      if (!exists) {
-          throw new Error('O domínio do e-mail não existe.');
-      }
-
-      return true;
-  }),
-   
-
-
   body('password')
     .isString().withMessage('Senha inválida.')
     // Limite máximo é importante: bcrypt trunca em 72 bytes e strings
