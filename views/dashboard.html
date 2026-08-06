@@ -244,6 +244,7 @@
     font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
     padding:5px 10px; border-radius:6px; border:1.5px solid currentColor;
     transform:rotate(-2deg);
+    display:inline-block;
   }
   .stamp-aberto{color:var(--stamp-red); background:var(--stamp-red-bg);}
   .stamp-andamento{color:var(--stamp-amber); background:var(--stamp-amber-bg);}
@@ -613,6 +614,7 @@
   var currentFilter = 'todos';
   var pendingFiles = [];
   var isLoading = false;
+  var isAdmin = false;       // setado por checkAdminStatus(); controla se o status é editável
 
   var categoriaLabel = {ti:'TI / Sistemas', infraestrutura:'Infraestrutura', manutencao:'Manutenção', rh:'RH', financeiro:'Financeiro', outros:'Outros'};
   var statusLabel = {aberto:'Aberto', andamento:'Em andamento', resolvido:'Resolvido'};
@@ -621,22 +623,25 @@
   var listCount = document.getElementById('listCount');
 
   // ---------------- Verificar se o usuário é admin ----------------
-  // GET /api/me/status — usado só para decidir se mostra o botão/link de admin.
-  // A proteção de verdade da rota /admin é feita pelo backend (middleware admin).
+  // GET /api/me/status — usado só para decidir se mostra o botão/link de admin
+  // e se o status do chamado é editável na listagem.
+  // A proteção de verdade da rota /admin e do PATCH de status é feita pelo backend.
   function checkAdminStatus(){
-    fetch(API_BASE + '/me/status')
+    return fetch(API_BASE + '/me/status')
       .then(function(res){
         if(!res.ok) throw new Error('Falha ao verificar status');
         return res.json();
       })
       .then(function(data){
-        if(data.isAdmin){
+        isAdmin = !!data.isAdmin;
+        if(isAdmin){
           document.getElementById('adminBtn').style.display = 'inline-flex';
           document.getElementById('adminNavLink').style.display = 'flex';
         }
       })
       .catch(function(){
-        // silencioso — se falhar, os elementos de admin simplesmente não aparecem
+        // silencioso — se falhar, tratamos como usuário comum (isAdmin fica false)
+        isAdmin = false;
       });
   }
 
@@ -725,7 +730,7 @@
               '<span class="tag">' + categoriaLabel[t.categoria] + '</span>' +
               '<span class="tag"><span class="priority-dot pr-' + t.prioridade + '"></span>' + prioridadeLabel(t.prioridade) + '</span>' +
               (t.criadoPor ? '<span class="tag">' + userIcon() + escapeHtml(t.criadoPor) + '</span>' : '') +
-              statusSelect(t) +
+              statusField(t) +
             '</div>' +
           '</div>' +
           '<div class="ticket-side">' +
@@ -737,6 +742,14 @@
     }).join('');
 
     updateStats();
+  }
+
+  // Decide entre o <select> editável (admin) e o carimbo somente-leitura (usuário comum)
+  function statusField(t){
+    if(isAdmin){
+      return statusSelect(t);
+    }
+    return '<span class="stamp stamp-' + t.status + '">' + statusLabel[t.status] + '</span>';
   }
 
   function statusSelect(t){
@@ -776,9 +789,14 @@
 
   // ---------------- Mudar status ----------------
   // PATCH /api/chamados/:id/status
+  // Este listener só dispara em algo que exista, e como usuários não-admin não
+  // renderizam mais o <select> (statusField retorna um <span> fixo), a troca
+  // de status já fica indisponível na UI para eles. Mesmo assim o backend deve
+  // continuar validando isAdmin no PATCH — isso aqui é só cosmético.
   ticketList.addEventListener('change', function(e){
     var select = e.target.closest('.stamp-select');
     if(!select) return;
+    if(!isAdmin) return; // segurança extra no front, a validação real é no backend
 
     var dbId = select.dataset.dbid;
     var novoStatus = select.value;
@@ -975,8 +993,9 @@
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
   }
 
-  checkAdminStatus();
-  loadTickets();
+  // Espera confirmar o status de admin antes do primeiro render, para não
+  // "piscar" o select editável e depois trocar pro carimbo somente-leitura.
+  checkAdminStatus().then(loadTickets);
 })();
 </script>
 
