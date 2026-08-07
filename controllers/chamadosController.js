@@ -1,6 +1,7 @@
 // controllers/chamadosController.js
 const { pool } = require('../config/dbpg');
 
+const { HORAS_BLOQUEIO } = require('../middleware/Limitechamados');
 
 // Formata o número exibido no dashboard, ex: 42 -> "OS-0042"
 function formatarNumero(id) {
@@ -160,6 +161,14 @@ async function criarChamado(req, res) {
     const numero = formatarNumero(chamado.id);
 
     await client.query('UPDATE chamados SET numero = $1 WHERE id = $2', [numero, chamado.id]);
+
+
+    // Registra o bloqueio: usuário só poderá abrir outro chamado depois de HORAS_BLOQUEIO horas.
+    await client.query(
+      `UPDATE users SET chamado_bloqueado_ate = NOW() + INTERVAL '${HORAS_BLOQUEIO} hours' WHERE id = $1`,
+      [usuarioId]
+    );
+ 
 
     const arquivos = req.files || [];
     const anexos = [];

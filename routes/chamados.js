@@ -28,7 +28,7 @@ const upload = multer({
 // Middleware
 const { isAuthenticated, admin } = require('../middleware/authMiddleware');
 const { chamadovalidator } = require('../middleware/validatorschamados');
-
+const { verificarLimiteChamados } = require('../middleware/Limitechamados')
 // admin routeS
 router.patch('/chamados/:id/status',isAuthenticated, admin, chamadosController.atualizarStatus);
 router.delete('/chamados/:id/',isAuthenticated, admin, chamadosController.deletarChamado);
@@ -54,11 +54,11 @@ router.get('/chamados/:id', isAuthenticated,  chamadosController.buscarChamado);
 
 // POST
 // Criar chamado (com até 5 fotos)
-router.post('/chamados' ,   upload.array('anexos', 5), isAuthenticated, chamadovalidator({
+router.post('/chamados' ,   upload.array('anexos', 5), isAuthenticated, chamadovalidator ({
     titulo: { required: true, type: 'string', minLength: 6, maxLength: 20 },
-    categoria: { required: true, type: 'string', minLength: 6, maxLength: 50 },
+    categoria: { required: true, type: 'string', minLength: 0, maxLength: 50 },
     descricao: { required: true, type: 'string', minLength: 10, maxLength: 3000 }
-  }), chamadosController.criarChamado);
+  }),verificarLimiteChamados, chamadosController.criarChamado);
 
 
 // Adicionar mais fotos a um chamado existente

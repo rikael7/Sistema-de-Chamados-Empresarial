@@ -375,6 +375,51 @@
     margin-top:6px;
   }
 
+  /* ---------------- Aviso de limite de chamados ---------------- */
+  .limit-notice{
+    display:none;
+    background:var(--stamp-amber-bg);
+    border:1px solid var(--stamp-amber);
+    border-radius:12px;
+    padding:16px 18px;
+    gap:10px;
+  }
+  .limit-notice.show{display:flex; flex-direction:column;}
+  .limit-notice .ln-head{
+    display:flex; align-items:center; gap:9px;
+  }
+  .limit-notice .ln-head svg{width:18px; height:18px; color:var(--stamp-amber); flex-shrink:0;}
+  .limit-notice .ln-title{font-size:13.5px; font-weight:700; color:var(--stamp-amber);}
+  .limit-notice .ln-msg{font-size:12.5px; color:var(--ink); line-height:1.5;}
+  .limit-notice .ln-time{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+  }
+  .limit-notice .ln-emergency{
+    border-top:1px dashed rgba(173,123,27,.35);
+    padding-top:12px;
+    margin-top:2px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .limit-notice .ln-emergency p{font-size:12px; color:var(--muted);}
+  .limit-notice .ln-emergency .ln-contacts{
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .ln-contact-btn{
+    font-family:inherit;
+    font-size:12.5px; font-weight:600;
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 12px;
+    border-radius:8px;
+    background:#fff;
+    border:1px solid var(--stamp-amber);
+    color:var(--ink);
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .ln-contact-btn:hover{background:var(--stamp-amber-bg);}
+  .ln-contact-btn svg{width:13px; height:13px; flex-shrink:0;}
+
   /* ---------------- Toast ---------------- */
   .toast{
     position:fixed; bottom:24px; right:24px;
@@ -558,7 +603,30 @@
     </div>
 
     <form class="modal-body" id="ticketForm">
-      <div class="field">
+
+      <!-- Aviso exibido quando o usuário está impedido de abrir novo chamado (limite de 5h) -->
+      <div class="limit-notice" id="limitNotice">
+        <div class="ln-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="ln-title">Limite de chamados atingido</span>
+        </div>
+        <div class="ln-msg" id="limitNoticeMsg"></div>
+        <div class="ln-emergency">
+          <p>É uma emergência? Fale diretamente com o administrador:</p>
+          <div class="ln-contacts">
+            <a class="ln-contact-btn" id="limitEmailBtn" href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6 8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              E-mail
+            </a>
+            <a class="ln-contact-btn" id="limitWhatsBtn" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l1.4-4A8 8 0 1 1 9 19.5L4 20Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" id="fieldTitulo">
         <label for="titulo">Título do problema</label>
         <input type="text" id="titulo" name="titulo" minlength="5" maxlength="20"  placeholder="Ex: Impressora do 3º andar não liga" required>
       </div>
@@ -610,6 +678,13 @@
 (function(){
   var API_BASE = '/api';
 
+  // TODO: ajustar para o contato real do administrador/TI da empresa.
+  var ADMIN_CONTATO = {
+    email: 'ti@suaempresa.com',
+    assuntoEmail: 'URGENTE - Chamado emergencial',
+    whatsapp: '5500000000000' // formato internacional, só números (DDI+DDD+número)
+  };
+
   var tickets = [];          // populado via GET /api/chamados
   var currentFilter = 'todos';
   var pendingFiles = [];
@@ -621,6 +696,15 @@
 
   var ticketList = document.getElementById('ticketList');
   var listCount = document.getElementById('listCount');
+
+  var limitNotice = document.getElementById('limitNotice');
+  var limitNoticeMsg = document.getElementById('limitNoticeMsg');
+  var limitEmailBtn = document.getElementById('limitEmailBtn');
+  var limitWhatsBtn = document.getElementById('limitWhatsBtn');
+  var camposForm = ['fieldTitulo']; // ids dos campos escondidos quando o aviso de limite aparece
+
+  limitWhatsBtn.href = 'https://wa.me/' + ADMIN_CONTATO.whatsapp +
+    '?text=' + encodeURIComponent('Preciso reportar um problema urgente e estou impedido de abrir um chamado pelo sistema.');
 
   // ---------------- Verificar se o usuário é admin ----------------
   // GET /api/me/status — usado só para decidir se mostra o botão/link de admin
@@ -848,12 +932,16 @@
 
   // ---------------- Modal open/close ----------------
   var overlay = document.getElementById('overlay');
-  function openModal(){ overlay.classList.add('open'); }
+  function openModal(){
+    hideLimitNotice(); // garante que o modal sempre abre limpo, sem o aviso de uma tentativa anterior
+    overlay.classList.add('open');
+  }
   function closeModal(){
     overlay.classList.remove('open');
     document.getElementById('ticketForm').reset();
     pendingFiles = [];
     renderThumbs();
+    hideLimitNotice();
   }
   document.getElementById('openModalBtn').addEventListener('click', openModal);
   document.getElementById('closeModalBtn').addEventListener('click', closeModal);
@@ -936,10 +1024,24 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
 
+    hideLimitNotice(); // limpa um aviso de tentativa anterior antes de reenviar
+
     // POST /api/chamados  — cria um novo chamado (multipart/form-data)
     // Prioridade não é mais escolhida aqui — o admin define depois pelo painel.
     fetch(API_BASE + '/chamados', { method: 'POST', body: formData })
       .then(function(res){
+        if(res.status === 429){
+          // Usuário está dentro da janela de 5h de bloqueio — trata à parte,
+          // mostrando o aviso com contato de emergência em vez do toast genérico.
+          return res.json()
+            .catch(function(){ return null; })
+            .then(function(errBody){
+              var e = new Error('limite');
+              e.isLimit = true;
+              e.body = errBody;
+              throw e;
+            });
+        }
         if(!res.ok){
           // Lê o corpo JSON de erro (ex: validação de tamanho de campo) antes de rejeitar.
           return res.json()
@@ -968,6 +1070,10 @@
         closeModal();
       })
       .catch(function(err){
+        if(err && err.isLimit){
+          showLimitNotice(err.body);
+          return;
+        }
         var msg = (err && err.message) ? err.message : ('Não foi possível enviar o chamado. Verifique a conexão com ' + API_BASE + '/chamados e tente novamente.');
         showToast(msg);
       })
@@ -976,6 +1082,51 @@
         submitBtn.textContent = 'Enviar chamado';
       });
   });
+
+  // ---------------- Aviso de limite de chamados (429) ----------------
+  function formatarTempoRestante(iso){
+    var alvo = new Date(iso);
+    if(isNaN(alvo)) return 'em breve';
+    var diffMs = alvo - new Date();
+    if(diffMs <= 0) return 'em instantes';
+    var totalMin = Math.ceil(diffMs / 60000);
+    var horas = Math.floor(totalMin / 60);
+    var min = totalMin % 60;
+    if(horas > 0 && min > 0) return horas + 'h ' + min + 'min';
+    if(horas > 0) return horas + 'h';
+    return min + 'min';
+  }
+
+  function showLimitNotice(errBody){
+    var tempoTexto = errBody && errBody.bloqueado_ate ? formatarTempoRestante(errBody.bloqueado_ate) : 'algumas horas';
+    limitNoticeMsg.innerHTML = 'Você já abriu um chamado recentemente. Por enquanto, só é possível abrir um novo chamado a cada 5 horas. ' +
+      'Tente novamente em <span class="ln-time">' + escapeHtml(tempoTexto) + '</span>.';
+
+    limitEmailBtn.href = 'mailto:' + ADMIN_CONTATO.email + '?subject=' + encodeURIComponent(ADMIN_CONTATO.assuntoEmail);
+
+    limitNotice.classList.add('show');
+    camposForm.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+    document.getElementById('descricao').closest('.field').style.display = 'none';
+    document.getElementById('categoria').closest('.field').style.display = 'none';
+    document.querySelector('.field:has(#dropzone)') && (document.querySelector('.field:has(#dropzone)').style.display = 'none');
+    document.getElementById('submitBtn').style.display = 'none';
+  }
+
+  function hideLimitNotice(){
+    limitNotice.classList.remove('show');
+    camposForm.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.style.display = '';
+    });
+    document.getElementById('descricao').closest('.field').style.display = '';
+    document.getElementById('categoria').closest('.field').style.display = '';
+    var dz = document.querySelector('.field:has(#dropzone)');
+    if(dz) dz.style.display = '';
+    document.getElementById('submitBtn').style.display = '';
+  }
 
   function todayFallback(){
     var d = new Date();
