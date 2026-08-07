@@ -51,6 +51,9 @@ router.get('/chamados', isAuthenticated,  chamadosController.listarChamados);
 // Detalhe de um chamado (com anexos e comentários)
 router.get('/chamados/:id', isAuthenticated,  chamadosController.buscarChamado);
 
+// pegar seu nome de usuarios para colocar no front-end 
+router.get('/me', isAuthenticated,  chamadosController.carregarUsuario);
+
 
 // POST
 // Criar chamado (com até 5 fotos)

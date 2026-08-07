@@ -354,6 +354,31 @@ async function adicionarComentario(req, res) {
   }
 }
 
+
+// Carregar usuario
+async function carregarUsuario(req, res) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ erro: 'Não autenticado' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id, name, email, adm FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao buscar usuário logado:', err);
+    res.status(500).json({ erro: 'Erro ao buscar usuário' });
+  }
+}
+
+
 module.exports = {
   criarChamado,
   listarChamados,
@@ -362,5 +387,6 @@ module.exports = {
   atualizarStatus,
   deletarChamado,
   adicionarComentario,
+  carregarUsuario,
   statusUsuario 
 };

@@ -147,6 +147,30 @@
   .btn-admin:hover{background:#2A324A;}
   .btn svg{width:15px; height:15px;}
 
+  /* ---------------- User badge (nome do usuário logado) ---------------- */
+  .user-badge{
+    display:flex; align-items:center; gap:9px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:7px 12px 7px 7px;
+  }
+  .user-badge .avatar{
+    width:28px; height:28px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .user-badge .info{display:flex; flex-direction:column; line-height:1.25;}
+  .user-badge .name{font-size:13px; font-weight:600;}
+  .user-badge .role{font-size:11px; color:var(--muted);}
+  .user-badge.loading .name{color:var(--muted); font-weight:400;}
+
   /* ---------------- Stats ---------------- */
   .stats-row{
     display:grid;
@@ -544,6 +568,15 @@
       </div>
 
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <!-- Badge com o nome do usuário logado, preenchido via GET /api/me -->
+        <div class="user-badge loading" id="userBadge">
+          <div class="avatar" id="userAvatar">?</div>
+          <div class="info">
+            <span class="name" id="userName">Carregando...</span>
+            <span class="role" id="userRole"></span>
+          </div>
+        </div>
+
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Buscar chamado, nº ou palavra-chave">
@@ -690,6 +723,7 @@
   var pendingFiles = [];
   var isLoading = false;
   var isAdmin = false;       // setado por checkAdminStatus(); controla se o status é editável
+  var usuarioLogado = null;  // setado por loadUsuarioLogado()
 
   var categoriaLabel = {ti:'TI / Sistemas', infraestrutura:'Infraestrutura', manutencao:'Manutenção', rh:'RH', financeiro:'Financeiro', outros:'Outros'};
   var statusLabel = {aberto:'Aberto', andamento:'Em andamento', resolvido:'Resolvido'};
@@ -705,6 +739,43 @@
 
   limitWhatsBtn.href = 'https://wa.me/' + ADMIN_CONTATO.whatsapp +
     '?text=' + encodeURIComponent('Preciso reportar um problema urgente e estou impedido de abrir um chamado pelo sistema.');
+
+  // ---------------- Carregar nome do usuário logado ----------------
+  // GET /api/me — retorna os dados do usuário da sessão atual (id, nome, email, is_admin...).
+  // Preenche o badge no topo do painel com o nome e as iniciais para o avatar.
+  var userBadge = document.getElementById('userBadge');
+  var userAvatar = document.getElementById('userAvatar');
+  var userName = document.getElementById('userName');
+  var userRole = document.getElementById('userRole');
+
+  function getIniciais(nome){
+    if(!nome) return '?';
+    var partes = nome.trim().split(/\s+/);
+    var iniciais = partes[0].charAt(0);
+    if(partes.length > 1) iniciais += partes[partes.length - 1].charAt(0);
+    return iniciais.toUpperCase();
+  }
+
+  function loadUsuarioLogado(){
+    return fetch(API_BASE + '/me')
+      .then(function(res){
+        if(!res.ok) throw new Error('Não autenticado');
+        return res.json();
+      })
+      .then(function(data){
+        usuarioLogado = data;
+        userBadge.classList.remove('loading');
+        userAvatar.textContent = getIniciais(data.name);
+        userName.textContent = data.name;
+        userRole.textContent = data.adm ? 'Administrador' : 'Usuário';
+      })
+      .catch(function(){
+        userBadge.classList.remove('loading');
+        userAvatar.textContent = '?';
+        userName.textContent = 'Visitante';
+        userRole.textContent = '';
+      });
+  }
 
   // ---------------- Verificar se o usuário é admin ----------------
   // GET /api/me/status — usado só para decidir se mostra o botão/link de admin
@@ -1063,7 +1134,7 @@
           status: data.status || 'aberto',
           data: formatDate(data.criado_em) || todayFallback(),
           anexos: (data.anexos && data.anexos.length) || pendingFiles.length,
-          criadoPor: data.criado_por || ''
+          criadoPor: data.criado_por || (usuarioLogado ? usuarioLogado.name : '')
         });
         document.querySelector('.chip[data-filter="todos"]').click();
         showToast('Chamado ' + data.id + ' criado com sucesso.');
@@ -1144,9 +1215,9 @@
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
   }
 
-  // Espera confirmar o status de admin antes do primeiro render, para não
+  // Espera confirmar o nome e o status de admin antes do primeiro render, para não
   // "piscar" o select editável e depois trocar pro carimbo somente-leitura.
-  checkAdminStatus().then(loadTickets);
+  Promise.all([loadUsuarioLogado(), checkAdminStatus()]).then(loadTickets);
 })();
 </script>
 
