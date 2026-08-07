@@ -93,6 +93,9 @@ Exemplo:
 ## Tela do usuário 
 ![Tela de User](./docs/dashboarduser.PNG)
 
+## Tela do usuário 
+![Sistema de bloqueio de chamados](./docs/bloqueiodechamado.png)
+
 ## Tela do admin 
 ![Tela de Admin](./docs/dashboardadmin.PNG)
 
