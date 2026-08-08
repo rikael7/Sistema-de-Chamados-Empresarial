@@ -223,7 +223,9 @@
     gap:18px;
     padding:16px 20px;
     position:relative;
+    cursor:pointer;
   }
+  .ticket-slip:hover{border-color:var(--accent);}
 
   .ticket-slip::before{
     content:'';
@@ -383,6 +385,7 @@
     border-radius:9px;
     overflow:hidden;
     border:1px solid var(--line);
+    display:block;
   }
   .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
   .thumb .rm{
@@ -539,12 +542,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.45c-.7.2-1.5.7-1.5 1.55" stroke-linecap="round"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
         Ajuda
       </div>
-      <!--
-        Link de administração — fica escondido até confirmarmos via API que o
-        usuário logado é admin. A proteção real da rota /admin acontece no
-        backend (middleware isAuthenticated + admin no server.js); isso aqui
-        é só conveniência visual.
-      -->
       <a href="/admin" class="nav-item" id="adminNavLink" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4Z"/></svg>
         Administração
@@ -568,7 +565,6 @@
       </div>
 
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <!-- Badge com o nome do usuário logado, preenchido via GET /api/me -->
         <div class="user-badge loading" id="userBadge">
           <div class="avatar" id="userAvatar">?</div>
           <div class="info">
@@ -581,10 +577,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Buscar chamado, nº ou palavra-chave">
         </div>
-        <!--
-          Botão de administração no topbar, mesma lógica: só aparece se
-          /api/me/status confirmar isAdmin === true.
-        -->
         <a href="/admin" class="btn btn-admin" id="adminBtn" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4Z"/></svg>
           Administração
@@ -637,7 +629,6 @@
 
     <form class="modal-body" id="ticketForm">
 
-      <!-- Aviso exibido quando o usuário está impedido de abrir novo chamado (limite de 5h) -->
       <div class="limit-notice" id="limitNotice">
         <div class="ln-head">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -702,6 +693,40 @@
   </div>
 </div>
 
+<!-- Modal: Detalhe do chamado (anexos vêm daqui) -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="detailTitulo">Chamado</h3>
+        <p id="detailNumero"></p>
+      </div>
+      <button class="close-btn" id="closeDetailBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="detailLoading" class="state-box" style="display:none;">
+        <div class="spinner"></div>Carregando...
+      </div>
+      <div id="detailContent" style="display:none;">
+        <div class="ticket-meta" id="detailMeta" style="margin-bottom:14px;"></div>
+        <div class="field">
+          <label>Descrição</label>
+          <p id="detailDescricao" style="font-size:13.5px; color:var(--ink); line-height:1.5;"></p>
+        </div>
+        <div class="field" id="detailAnexosField" style="display:none; margin-top:16px;">
+          <label>Anexos</label>
+          <div class="thumb-grid" id="detailThumbGrid"></div>
+        </div>
+      </div>
+      <div id="detailError" class="state-box error" style="display:none;">
+        Não foi possível carregar os detalhes deste chamado.
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <strong>Chamado registrado</strong>
   <span id="toastMsg"></span>
@@ -711,19 +736,18 @@
 (function(){
   var API_BASE = '/api';
 
-  // TODO: ajustar para o contato real do administrador/TI da empresa.
   var ADMIN_CONTATO = {
     email: 'ti@suaempresa.com',
     assuntoEmail: 'URGENTE - Chamado emergencial',
-    whatsapp: '5500000000000' // formato internacional, só números (DDI+DDD+número)
+    whatsapp: '5500000000000'
   };
 
-  var tickets = [];          // populado via GET /api/chamados
+  var tickets = [];
   var currentFilter = 'todos';
   var pendingFiles = [];
   var isLoading = false;
-  var isAdmin = false;       // setado por checkAdminStatus(); controla se o status é editável
-  var usuarioLogado = null;  // setado por loadUsuarioLogado()
+  var isAdmin = false;
+  var usuarioLogado = null;
 
   var categoriaLabel = {ti:'TI / Sistemas', infraestrutura:'Infraestrutura', manutencao:'Manutenção', rh:'RH', financeiro:'Financeiro', outros:'Outros'};
   var statusLabel = {aberto:'Aberto', andamento:'Em andamento', resolvido:'Resolvido'};
@@ -735,14 +759,12 @@
   var limitNoticeMsg = document.getElementById('limitNoticeMsg');
   var limitEmailBtn = document.getElementById('limitEmailBtn');
   var limitWhatsBtn = document.getElementById('limitWhatsBtn');
-  var camposForm = ['fieldTitulo']; // ids dos campos escondidos quando o aviso de limite aparece
+  var camposForm = ['fieldTitulo'];
 
   limitWhatsBtn.href = 'https://wa.me/' + ADMIN_CONTATO.whatsapp +
     '?text=' + encodeURIComponent('Preciso reportar um problema urgente e estou impedido de abrir um chamado pelo sistema.');
 
   // ---------------- Carregar nome do usuário logado ----------------
-  // GET /api/me — retorna os dados do usuário da sessão atual (id, nome, email, is_admin...).
-  // Preenche o badge no topo do painel com o nome e as iniciais para o avatar.
   var userBadge = document.getElementById('userBadge');
   var userAvatar = document.getElementById('userAvatar');
   var userName = document.getElementById('userName');
@@ -778,9 +800,6 @@
   }
 
   // ---------------- Verificar se o usuário é admin ----------------
-  // GET /api/me/status — usado só para decidir se mostra o botão/link de admin
-  // e se o status do chamado é editável na listagem.
-  // A proteção de verdade da rota /admin e do PATCH de status é feita pelo backend.
   function checkAdminStatus(){
     return fetch(API_BASE + '/me/status')
       .then(function(res){
@@ -795,13 +814,11 @@
         }
       })
       .catch(function(){
-        // silencioso — se falhar, tratamos como usuário comum (isAdmin fica false)
         isAdmin = false;
       });
   }
 
   // ---------------- Carregar chamados do backend ----------------
-  // GET /api/chamados
   function loadTickets(){
     isLoading = true;
     renderLoading();
@@ -822,7 +839,6 @@
       });
   }
 
-  // Ajusta o formato vindo do banco para o formato usado pelo front
   function normalizeTicket(row){
     return {
       dbId: row.id,
@@ -875,7 +891,7 @@
 
     ticketList.innerHTML = filtered.map(function(t){
       return (
-        '<div class="ticket-slip">' +
+        '<div class="ticket-slip" data-dbid="' + t.dbId + '">' +
           '<div class="notch-bottom"></div>' +
           '<div class="ticket-id">Nº<span class="num">' + t.id + '</span></div>' +
           '<div class="ticket-main">' +
@@ -899,7 +915,6 @@
     updateStats();
   }
 
-  // Decide entre o <select> editável (admin) e o carimbo somente-leitura (usuário comum)
   function statusField(t){
     if(isAdmin){
       return statusSelect(t);
@@ -943,15 +958,10 @@
   }
 
   // ---------------- Mudar status ----------------
-  // PATCH /api/chamados/:id/status
-  // Este listener só dispara em algo que exista, e como usuários não-admin não
-  // renderizam mais o <select> (statusField retorna um <span> fixo), a troca
-  // de status já fica indisponível na UI para eles. Mesmo assim o backend deve
-  // continuar validando isAdmin no PATCH — isso aqui é só cosmético.
   ticketList.addEventListener('change', function(e){
     var select = e.target.closest('.stamp-select');
     if(!select) return;
-    if(!isAdmin) return; // segurança extra no front, a validação real é no backend
+    if(!isAdmin) return;
 
     var dbId = select.dataset.dbid;
     var novoStatus = select.value;
@@ -991,6 +1001,76 @@
       });
   });
 
+  // ---------------- Abrir detalhe do chamado (com anexos) ----------------
+  var detailOverlay = document.getElementById('detailOverlay');
+  var detailTitulo = document.getElementById('detailTitulo');
+  var detailNumero = document.getElementById('detailNumero');
+  var detailDescricao = document.getElementById('detailDescricao');
+  var detailMeta = document.getElementById('detailMeta');
+  var detailAnexosField = document.getElementById('detailAnexosField');
+  var detailThumbGrid = document.getElementById('detailThumbGrid');
+  var detailLoading = document.getElementById('detailLoading');
+  var detailContent = document.getElementById('detailContent');
+  var detailError = document.getElementById('detailError');
+
+  function openDetailModal(dbId){
+    detailOverlay.classList.add('open');
+    detailLoading.style.display = 'block';
+    detailContent.style.display = 'none';
+    detailError.style.display = 'none';
+    detailAnexosField.style.display = 'none';
+    detailThumbGrid.innerHTML = '';
+    detailMeta.innerHTML = '';
+
+    // GET /api/chamados/:id — retorna o chamado com anexos já com signed URL
+    fetch(API_BASE + '/chamados/' + dbId)
+      .then(function(res){
+        if(!res.ok) throw new Error('Falha ao carregar chamado');
+        return res.json();
+      })
+      .then(function(data){
+        detailLoading.style.display = 'none';
+        detailContent.style.display = 'block';
+
+        detailTitulo.textContent = data.titulo || 'Chamado';
+        detailNumero.textContent = data.numero || '';
+        detailDescricao.textContent = data.descricao || '';
+
+        detailMeta.innerHTML =
+          '<span class="tag">' + (categoriaLabel[data.categoria] || data.categoria) + '</span>' +
+          (data.prioridade ? '<span class="tag"><span class="priority-dot pr-' + data.prioridade + '"></span>' + prioridadeLabel(data.prioridade) + '</span>' : '') +
+          '<span class="stamp stamp-' + data.status + '">' + (statusLabel[data.status] || data.status) + '</span>';
+
+        if(data.anexos && data.anexos.length > 0){
+          detailAnexosField.style.display = 'block';
+          detailThumbGrid.innerHTML = data.anexos.map(function(a){
+            return '<a class="thumb" href="' + a.url + '" target="_blank" rel="noopener">' +
+              '<img src="' + a.url + '" alt="' + escapeHtml(a.nome_original || 'Anexo') + '" loading="lazy">' +
+            '</a>';
+          }).join('');
+        }
+      })
+      .catch(function(){
+        detailLoading.style.display = 'none';
+        detailError.style.display = 'block';
+      });
+  }
+
+  document.getElementById('closeDetailBtn').addEventListener('click', function(){
+    detailOverlay.classList.remove('open');
+  });
+  detailOverlay.addEventListener('click', function(e){
+    if(e.target === detailOverlay) detailOverlay.classList.remove('open');
+  });
+
+  // Clique em qualquer parte do card abre o detalhe — exceto ao interagir com o <select> de status
+  ticketList.addEventListener('click', function(e){
+    if(e.target.closest('.stamp-select')) return;
+    var slip = e.target.closest('.ticket-slip');
+    if(!slip) return;
+    openDetailModal(slip.dataset.dbid);
+  });
+
   // ---------------- Filters ----------------
   document.getElementById('filters').addEventListener('click', function(e){
     var chip = e.target.closest('.chip');
@@ -1001,10 +1081,10 @@
     render();
   });
 
-  // ---------------- Modal open/close ----------------
+  // ---------------- Modal open/close (novo chamado) ----------------
   var overlay = document.getElementById('overlay');
   function openModal(){
-    hideLimitNotice(); // garante que o modal sempre abre limpo, sem o aviso de uma tentativa anterior
+    hideLimitNotice();
     overlay.classList.add('open');
   }
   function closeModal(){
@@ -1066,7 +1146,6 @@
   });
 
   // ---------------- Helper: extrai mensagem de erro do JSON de validação ----------------
-  // Espera um corpo no formato: { erro: "Dados inválidos", detalhes: ["campo x limite y", ...] }
   function extractErrorMessage(errBody, fallback){
     if(errBody && Array.isArray(errBody.detalhes) && errBody.detalhes.length){
       return errBody.detalhes.join(' | ');
@@ -1095,15 +1174,11 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
 
-    hideLimitNotice(); // limpa um aviso de tentativa anterior antes de reenviar
+    hideLimitNotice();
 
-    // POST /api/chamados  — cria um novo chamado (multipart/form-data)
-    // Prioridade não é mais escolhida aqui — o admin define depois pelo painel.
     fetch(API_BASE + '/chamados', { method: 'POST', body: formData })
       .then(function(res){
         if(res.status === 429){
-          // Usuário está dentro da janela de 5h de bloqueio — trata à parte,
-          // mostrando o aviso com contato de emergência em vez do toast genérico.
           return res.json()
             .catch(function(){ return null; })
             .then(function(errBody){
@@ -1114,9 +1189,8 @@
             });
         }
         if(!res.ok){
-          // Lê o corpo JSON de erro (ex: validação de tamanho de campo) antes de rejeitar.
           return res.json()
-            .catch(function(){ return null; }) // resposta pode não ser JSON válido
+            .catch(function(){ return null; })
             .then(function(errBody){
               throw new Error(extractErrorMessage(errBody, 'Falha no envio'));
             });
@@ -1209,14 +1283,12 @@
   var toastMsg = document.getElementById('toastMsg');
   var toastTimer;
   function showToast(msg){
-    toastMsg.textContent = msg; // textContent — nunca innerHTML aqui, evita XSS mesmo com mensagens de erro do servidor
+    toastMsg.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4200);
   }
 
-  // Espera confirmar o nome e o status de admin antes do primeiro render, para não
-  // "piscar" o select editável e depois trocar pro carimbo somente-leitura.
   Promise.all([loadUsuarioLogado(), checkAdminStatus()]).then(loadTickets);
 })();
 </script>
