@@ -690,7 +690,7 @@ Este projeto está sob a licença MIT.
 
 **Rikael Ribeiro de Araújo Moraes**
 
-- GitHub: https://github.com/rikaeldev
+- GitHub: https://github.com/rikae7
 - LinkedIn: https://linkedin.com/in/rikaeldev
 
 ---
