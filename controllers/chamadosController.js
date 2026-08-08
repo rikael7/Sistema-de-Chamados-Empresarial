@@ -1,5 +1,9 @@
 // controllers/chamadosController.js
 const { pool } = require('../config/dbpg');
+
+
+// // ========================== SUPABASE CONFIG ===================
+
 const { subirAnexo, removerAnexos, gerarUrlAssinada } = require('../utils/supabaseAnexos');
 const { HORAS_BLOQUEIO } = require('../middleware/Limitechamados');
 

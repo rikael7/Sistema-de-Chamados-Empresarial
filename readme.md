@@ -134,275 +134,126 @@ API Backend (Express)
 ---
 ---
 
-#  Fluxo da Aplicação
+# Fluxo da Aplicação
 
-Abaixo está o fluxo de execução das principais requisições do sistema, desde a chegada da requisição até a resposta enviada ao cliente.
+Fluxo de execução das principais requisições do sistema, da chegada da requisição até a resposta ao cliente.
+
+## Sumário
+
+- [Pipeline Base](#pipeline-base)
+- [Cadastro de Usuário](#cadastro-de-usuário)
+- [Login](#login)
+- [Logout](#logout)
+- [Consultar Chamados](#consultar-chamados)
+- [Buscar Chamado](#buscar-chamado)
+- [Criar Chamado](#criar-chamado)
+- [Enviar Anexos](#enviar-anexos)
+- [Rotas Administrativas](#rotas-administrativas)
 
 ---
 
-##  Cadastro de Usuário
+## Pipeline Base
+
+Toda requisição passa por esse núcleo comum antes do controller específico. Os fluxos abaixo mostram só o que muda em relação a ele.
 
 ```text
-Cliente
-   │
-   ▼
-POST /auth/register
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware (authtrue)
-   │
-   ▼
-Validação dos Dados
-(express-validator)
-   │
-   ▼
-Auth Controller
-(createUser)
-   │
-   ▼
-User Model
-   │
-   ▼
-PostgreSQL
-   │
-   ▼
-Resposta HTTP
+Cliente → Express (app.js) → Sanitize Middleware → Auth Middleware → Controller → Model → PostgreSQL → Resposta HTTP
 ```
 
 ---
 
-##  Login
+## Cadastro de Usuário
+
+`POST /auth/register`
 
 ```text
-Cliente
-   │
-   ▼
-POST /auth/login
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Controller
-   │
-   ▼
-User Model
-   │
-   ▼
-PostgreSQL
-   │
-   ▼
-Comparação da senha (bcrypt)
-   │
-   ▼
-Regeneração da Sessão
-   │
-   ▼
-Session Cookie
-   │
-   ▼
-Resposta HTTP
+Cliente → Sanitize → Auth Middleware (rota pública, authtrue) → Validação (express-validator)
+   → Auth Controller (createUser) → User Model → PostgreSQL → Resposta HTTP
 ```
 
 ---
 
-##  Logout
+## Login
+
+`POST /auth/login`
 
 ```text
-Cliente
-   │
-   ▼
-POST /auth/logout
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Destruição da Sessão
-   │
-   ▼
-Resposta HTTP
+Cliente → Sanitize → Auth Controller → User Model → PostgreSQL
+   → Comparação de senha (bcrypt) → Regeneração da Sessão → Session Cookie → Resposta HTTP
 ```
 
 ---
 
-##  Consultar Chamados
+## Logout
+
+`POST /auth/logout`
 
 ```text
-Cliente
-   │
-   ▼
-GET /api/chamados
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware
-   │
-   ▼
-Chamados Controller
-(conta anexos por chamado via LEFT JOIN)
-   │
-   ▼
-PostgreSQL
-   │
-   ▼
-Resposta HTTP
+Cliente → Sanitize → Destruição da Sessão → Resposta HTTP
 ```
 
 ---
 
-##  Buscar Chamado
+## Consultar Chamados
+
+`GET /api/chamados`
 
 ```text
-Cliente
-   │
-   ▼
-GET /api/chamados/:id
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware
-   │
-   ▼
-Chamados Controller
-   │
-   ▼
-PostgreSQL (busca chamado + paths dos anexos)
-   │
-   ▼
-Supabase Storage
-(gera 1 signed URL por anexo, válida por 1h)
-   │
-   ▼
-Resposta HTTP (anexos já com "url" pronta)
+Cliente → Sanitize → Auth Middleware
+   → Chamados Controller (conta anexos via LEFT JOIN) → PostgreSQL → Resposta HTTP
 ```
 
 ---
 
-##  Criar Chamado
+## Buscar Chamado
+
+`GET /api/chamados/:id`
 
 ```text
-Cliente
-   │
-   ▼
-POST /api/chamados  (multipart/form-data)
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware
-   │
-   ▼
-Multer (memoryStorage — gera arquivo.buffer, nada é salvo em disco)
-   │
-   ▼
-Chamados Controller
-   │
-   ├── BEGIN transação Postgres
-   ├── INSERT chamado
-   ├── Para cada anexo: upload no Supabase Storage + createSignedUrl
-   ├── INSERT chamado_anexos (salva apenas o path do bucket)
-   └── COMMIT (ou ROLLBACK + remoção dos arquivos já enviados, em caso de erro)
-   │
-   ▼
-Resposta HTTP (anexos já com "url" assinada)
+Cliente → Sanitize → Auth Middleware → Chamados Controller
+   → PostgreSQL (chamado + paths dos anexos)
+   → Supabase Storage (signed URL por anexo, válida 1h)
+   → Resposta HTTP (anexos já com "url" pronta)
 ```
 
 ---
 
-##  Enviar Anexos
+## Criar Chamado
+
+`POST /api/chamados` (multipart/form-data)
 
 ```text
-Cliente
-   │
-   ▼
-POST /api/chamados/:id/anexos  (multipart/form-data)
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware
-   │
-   ▼
-Multer (memoryStorage)
-   │
-   ▼
-Chamados Controller
-(mesma função subirAnexo usada na criação do chamado)
-   │
-   ▼
-Supabase Storage + PostgreSQL
-   │
-   ▼
-Resposta HTTP
+Cliente → Sanitize → Auth Middleware → Multer (memoryStorage, sem salvar em disco)
+   → Chamados Controller:
+        BEGIN transação
+        → INSERT chamado
+        → por anexo: upload Supabase Storage + createSignedUrl
+        → INSERT chamado_anexos (salva só o path)
+        → COMMIT (ou ROLLBACK + remoção dos arquivos, em caso de erro)
+   → Resposta HTTP (anexos com "url" assinada)
 ```
 
 ---
 
-##  Fluxo das Rotas Administrativas
+## Enviar Anexos
+
+`POST /api/chamados/:id/anexos` (multipart/form-data)
 
 ```text
-Cliente
-   │
-   ▼
-Requisição
-   │
-   ▼
-Express (app.js)
-   │
-   ▼
-Sanitize Middleware
-   │
-   ▼
-Auth Middleware
-   │
-   ▼
-Verificação de Administrador
-   │
-   ▼
-Controller
-   │
-   ▼
-PostgreSQL
-   │
-   ▼
-Resposta HTTP
+Cliente → Sanitize → Auth Middleware → Multer (memoryStorage)
+   → Chamados Controller (reaproveita subirAnexo da criação de chamado)
+   → Supabase Storage + PostgreSQL → Resposta HTTP
 ```
-
-> **Observação:** Todas as rotas protegidas exigem uma sessão válida. As rotas administrativas executam uma verificação adicional para confirmar que o usuário possui privilégios de administrador.
 
 ---
 
+## Rotas Administrativas
+
+```text
+Cliente → Sanitize → Auth Middleware → Verificação de Administrador → Controller → PostgreSQL → Resposta HTTP
+```
+
+> **Observação:** todas as rotas protegidas exigem sessão válida. As rotas administrativas fazem uma verificação adicional de privilégio de admin.
 #  Upload de Anexos com Supabase Storage
 
 Os anexos de chamados **não** ficam no disco do servidor — eles vão direto para um bucket privado no Supabase Storage. Resumo do funcionamento:
