@@ -171,10 +171,9 @@ async function criarChamado(req, res) {
 
     // Registra o bloqueio: usuário só poderá abrir outro chamado depois de HORAS_BLOQUEIO horas.
     await client.query(
-      `UPDATE users SET chamado_bloqueado_ate = NOW() + INTERVAL '${HORAS_BLOQUEIO} hours' WHERE id = $1`,
-      [usuarioId]
+    `UPDATE users SET chamado_bloqueado_ate = NOW() + ($1 || ' hours')::interval WHERE id = $2`,
+    [HORAS_BLOQUEIO, usuarioId]
     );
-
     const arquivos = req.files || [];
     const anexos = [];
 

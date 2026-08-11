@@ -43,6 +43,13 @@ function chamadovalidator(schema) {
         if (regras.max !== undefined && num > regras.max) {
           erros.push(`${campo} deve ser menor ou igual a ${regras.max}`);
         }
+
+        // enum pra number: compara contra o valor JÁ CONVERTIDO (num),
+        // porque em multipart/form-data 'valor' sempre chega como string.
+        if (regras.enum && !regras.enum.includes(num)) {
+          erros.push(`${campo} deve ser um de: ${regras.enum.join(', ')}`);
+        }
+        continue; // pula o enum genérico do final, já tratamos aqui em cima
       } else {
         // default: string
         if (typeof valor !== 'string') {
@@ -57,7 +64,8 @@ function chamadovalidator(schema) {
         }
       }
 
-      // enum (valores permitidos), funciona pra string ou number
+      // enum (valores permitidos) — só chega aqui pra campos do tipo string,
+      // já que o tipo 'number' trata o enum acima e dá 'continue'.
       if (regras.enum && !regras.enum.includes(valor)) {
         erros.push(`${campo} deve ser um de: ${regras.enum.join(', ')}`);
       }
