@@ -60,7 +60,7 @@ function isAuthenticated(req, res, next) {
     // });
 
     // manda para a rota de login
-     return res.redirect('/login');
+     return res.redirect('/');
 
 }
 
