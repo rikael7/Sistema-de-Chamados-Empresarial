@@ -9,7 +9,7 @@
 
 Want to test the system in operation?
 ****Access the production version:****
-******[**https://sistema-de-chamados-3z1c.onrender.com/****](https://sistema-de-chamados-3z1c.onrender.com/**)
+******[**https://sistema-de-chamados-3z1c.onrender.com****](https://sistema-de-chamados-3z1c.onrender.com/**)
 
 > ****Note:**** On the first visit, Render may take a few seconds to start the server because it uses hibernation on free plans.
 
@@ -28,7 +28,6 @@ Want to test the system in operation?
 * [ Demo](#-demo-1)
 * [ Project Architecture](#-project-architecture)
 * [ Application Flow](#application-flow)
-
   * [ User Registration](#user-registration)
   * [ Login](#login)
   * [ Logout](#logout)
@@ -45,7 +44,6 @@ Want to test the system in operation?
 * [ Database](#-database)
 * [ Running the Project](#-running-the-project)
 * [ API Documentation](#-api-documentation)
-
   * [Authentication](#authentication)
   * [User](#user-protected-routes)
   * [Admin](#admin-protected-routes--admin-permission)
