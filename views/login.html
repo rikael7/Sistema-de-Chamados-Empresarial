@@ -390,14 +390,61 @@
 
     // Botão de acesso demonstrativo — preenche os campos com a conta de demonstração.
     // Usuário ainda precisa clicar em "Login" normalmente para enviar o formulário.
-    document.getElementById('recruiterBtn').addEventListener('click', () => {
-      emailInput.value = 'recrutadorderikael@outlook.com';
-      passwordInput.value = 'bemvindo548';
-      emailInput.classList.remove('error');
-      passwordInput.classList.remove('error');
-      emailError.style.display = 'none';
-      passwordError.style.display = 'none';
+    document.getElementById('recruiterBtn').addEventListener('click', async () => {
+  emailInput.value = 'recrutadorderikael@outlook.com';
+  passwordInput.value = 'Bemvindo548';
+
+  emailInput.classList.remove('error');
+  passwordInput.classList.remove('error');
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Entrando...';
+  serverMsg.className = 'server-msg';
+
+  try {
+    const res = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email: 'recrutadorderikael@outlook.com',
+        password: 'bemvindo548',
+        remember: false
+      })
     });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      showServerMsg(
+        'Login como recrutador realizado! Redirecionando...',
+        'success'
+      );
+
+      window.location.href = data.redirectTo || '/';
+    } else {
+      showServerMsg(
+        data.message || data.erro || 'Não foi possível realizar o login.',
+        'error'
+      );
+    }
+
+  } catch (err) {
+    console.error(err);
+
+    showServerMsg(
+      'Erro de conexão com o servidor.',
+      'error'
+    );
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Login';
+  }
+});
   </script>
 
 </body>

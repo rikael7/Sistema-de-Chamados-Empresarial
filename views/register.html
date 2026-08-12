@@ -279,7 +279,7 @@
         </div>
         <div class="error-msg" id="termsError" style="margin-top: -20px;">Você precisa aceitar os termos para continuar.</div>
 
-        <button type="submit" class="btn-primary" id="submitBtn">Login</button>
+        <button type="submit" class="btn-primary" id="submitBtn">Criar Conta</button>
       </form>
 
       <button type="button" class="btn-google" id="googleBtn">
@@ -362,7 +362,7 @@
 
       try {
         // Endpoint assumido: POST /register — ajuste a URL/campos conforme sua rota real
-        const res = await fetch('auth/register', {
+        const res = await fetch('/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -387,7 +387,7 @@
         showServerMsg('Erro de conexão com o servidor. Tente novamente.', 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign up';
+        submitBtn.textContent = 'Criar conta';
       }
     });
 

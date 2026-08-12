@@ -15,38 +15,53 @@ const SALT_ROUNDS = 10;
 
 
 // POST /auth/register
-router.post('/register', registerValidationRules,
-  handleValidationErrors, authtrue, async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+router.post(
+  '/register',
+  registerValidationRules,
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const { name, email, password } = req.body;
 
-  
+      const existingUser = await findUserByEmail(email);
 
-    const existingUser = await findUserByEmail(email);
-    if (existingUser) {
-      return res.status(409).json({ error: 'Este email já está cadastrado.' });
+      if (existingUser) {
+        return res.status(409).json({
+          error: 'Este email já está cadastrado.'
+        });
+      }
+
+      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+      const user = await createUser({
+        name,
+        email,
+        passwordHash
+      });
+
+      return res.status(201).json({
+        message: 'Usuário registrado com sucesso.',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+
+    } catch (err) {
+      console.error('Erro no registro:', err);
+
+      return res.status(500).json({
+        error: 'Erro interno ao registrar usuário.'
+      });
     }
-
-
-    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await createUser({ name, email, passwordHash });
-
-    // Já loga o usuário automaticamente após o registro
-    req.session.userId = user.id;
-
-    return res.status(201).json({
-      message: 'Usuário registrado com sucesso.',
-      user: { id: user.id, name: user.name, email: user.email }
-    });
-  } catch (err) {
-    console.error('Erro no registro:', err);
-    return res.status(500).json({ error: 'Erro interno ao registrar usuário.' });
   }
-});
+);
+
 
 // POST /auth/login
 router.post('/login', loginValidationRules,
-  handleValidationErrors, authtrue, async (req, res) => {
+  handleValidationErrors,  async (req, res) => {
   try {
     const { email, password } = req.body;
 
