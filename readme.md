@@ -1,4 +1,4 @@
-[🇧🇷 Português](./readme.pt.md.md) | [🇺🇸 English](./readme.md)
+[🇧🇷 Português](./readme.pt.md) | [🇺🇸 English](./readme.md)
 
 # Enterprise Ticketing System
 
