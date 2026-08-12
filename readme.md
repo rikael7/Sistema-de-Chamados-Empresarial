@@ -1,3 +1,5 @@
+[🇧🇷 Português](./readme.pt.md.md) | [🇺🇸 English](./readme.md)
+
 # Enterprise Ticketing System
 
 > Enterprise platform with an integrated ticketing (WO) system, allowing user registration/login, file uploads, ticket creation and tracking, and a complete administrative panel.
