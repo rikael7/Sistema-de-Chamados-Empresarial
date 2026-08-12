@@ -18,7 +18,7 @@ const SALT_ROUNDS = 10;
 router.post(
   '/register',
   registerValidationRules,
-  handleValidationErrors,
+  handleValidationErrors, 
   async (req, res) => {
     try {
       const { name, email, password } = req.body;
@@ -60,8 +60,8 @@ router.post(
 
 
 // POST /auth/login
-router.post('/login', loginValidationRules,
-  handleValidationErrors,  async (req, res) => {
+router.post('/login',  loginValidationRules,
+  handleValidationErrors,   async (req, res) => {
   try {
     const { email, password } = req.body;
 
