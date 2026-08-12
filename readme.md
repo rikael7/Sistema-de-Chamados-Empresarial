@@ -9,7 +9,7 @@
 
 Want to test the system in operation?
 ****Access the production version:****
-******[https://sistema-de-chamados-3z1c.onrender.com/login](https://sistema-de-chamados-3z1c.onrender.com/**)
+******[https://sistema-de-chamados-3z1c.onrender.com/login]
 
 > ****Note:**** On the first visit, Render may take a few seconds to start the server because it uses hibernation on free plans.
 
