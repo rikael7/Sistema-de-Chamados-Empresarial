@@ -86,6 +86,14 @@ Example:
 
 
 
+https://github.com/user-attachments/assets/1e40609c-dfa0-43da-ba8e-dcb737c41bd0
+
+
+
+
+
+
+
 ## Recruiter Login
 
 ![Screens](./docs/teladelogin.png)
