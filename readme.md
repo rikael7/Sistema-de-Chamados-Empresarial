@@ -84,7 +84,7 @@ The ticketing system was born with a robust user authentication system focused o
 
 Example:
 
-https://github.com/user-attachments/assets/ae7f402d-f4ec-42de-8075-df5034b8a3fd
+
 
 ## Recruiter Login
 
