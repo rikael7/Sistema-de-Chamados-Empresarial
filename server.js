@@ -4,6 +4,10 @@ const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
 const rateLimit = require("express-rate-limit");
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // RATE LIMIT
 const limiter = rateLimit({
@@ -39,10 +43,7 @@ const publicupload = require('./routes/publicupload');
 const protectedRoutes = require('./routes/protectedRoutes');
 const chamados = require('./routes/chamados');
 
-const path = require('path');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 // =================
 // websocket
