@@ -3,6 +3,24 @@ const express = require('express');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
+const rateLimit = require("express-rate-limit");
+
+// RATE LIMIT
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    limit: 100, // máximo de 100 requisições por IP
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        error: "Muitas requisições. Tente novamente mais tarde."
+    }
+});
+
+// Aplica em TODAS as rotas
+app.use(limiter);
+
+
+
 
 // =================
 // Import de Middlewares
