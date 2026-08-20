@@ -4,14 +4,15 @@
 
 Sistema web desenvolvido em Node.js/Express, com autenticação por sessão, upload de arquivos (com anexos de chamados armazenados no Supabase Storage) e um módulo de chamados técnicos com anexos, comentários, prioridades e status de atendimento.
 
-##  Demonstração
+## Demonstração
 
 Quer testar o sistema em funcionamento?
 
- **Acesse a versão em produção:**  
+**Acesse a versão de produção:**
+
 **https://sistema-de-chamados-3z1c.onrender.com/**
 
-> **Observação:** Na primeira visita o Render pode levar alguns segundos para iniciar o servidor, pois utiliza hibernação em planos gratuitos.
+> **Nota:** A aplicação está hospedada no Render e utiliza o Neon PostgreSQL no plano gratuito. No primeiro acesso, pode ser necessário aguardar alguns segundos para que o servidor do Render inicie e o banco de dados saia do estado de inatividade. Esse comportamento é esperado nos planos gratuitos.
 
 ## 🚧 Projeto em Desenvolvimento
 

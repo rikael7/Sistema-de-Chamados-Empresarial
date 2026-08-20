@@ -13,10 +13,12 @@
 
 Want to test the system in action?
 
-**Access the production version:**  
+**Access the production version:**
+
 **https://sistema-de-chamados-3z1c.onrender.com/**
 
-> **Note:** Upon your first visit, it may take a few seconds for the server to start up, as the free tier uses a hibernation feature.
+> **Note:** The application is hosted on Render and uses Neon PostgreSQL on the free tier. On the first access, you may need to wait a few seconds for the Render server to start and for the database to wake up from its idle state. This is expected behavior on the free tiers.
+
 
 
 ## 🚧 Project in Development
