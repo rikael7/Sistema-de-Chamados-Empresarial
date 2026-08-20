@@ -7,10 +7,10 @@
 BEGIN;
 
 -- =====================================================================
--- EXTENSÕES
+-- EXTENSÃO
 -- =====================================================================
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 
 -- =====================================================================
@@ -45,17 +45,27 @@ $$ LANGUAGE plpgsql;
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS users (
-    id              SERIAL PRIMARY KEY,
-    name            VARCHAR(100) NOT NULL,
-    email           VARCHAR(254) NOT NULL UNIQUE,
-    password_hash   VARCHAR(255) NOT NULL,
-    bio             TEXT,
-    phone           VARCHAR(20),
-    avatar_url      VARCHAR(255),
-    adm             BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id                    SERIAL PRIMARY KEY,
+    name                  VARCHAR(100) NOT NULL,
+    email                 VARCHAR(254) NOT NULL UNIQUE,
+    password_hash         VARCHAR(255) NOT NULL,
+    bio                   TEXT,
+    phone                 VARCHAR(20),
+    avatar_url            VARCHAR(255),
+    adm                   BOOLEAN NOT NULL DEFAULT FALSE,
+
+    -- Data/hora até quando o usuário fica impedido
+    -- de criar outro chamado.
+    chamado_bloqueado_ate TIMESTAMPTZ,
+
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- =====================================================================
+-- TRIGGER: users.updated_at
+-- =====================================================================
 
 DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
 
@@ -71,17 +81,24 @@ CREATE TRIGGER trg_users_updated_at
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS videos (
-    id              SERIAL PRIMARY KEY,
-    titulo          VARCHAR(150) NOT NULL,
-    descricao       TEXT,
-    nome_arquivo    VARCHAR(255) NOT NULL,
-    tipo_arquivo    VARCHAR(100) NOT NULL,
-    tamanho         BIGINT NOT NULL,
-    usuario_id      INTEGER NOT NULL
-                    REFERENCES users(id)
-                    ON DELETE CASCADE,
-    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id            SERIAL PRIMARY KEY,
+    titulo        VARCHAR(150) NOT NULL,
+    descricao     TEXT,
+    nome_arquivo  VARCHAR(255) NOT NULL,
+    tipo_arquivo  VARCHAR(100) NOT NULL,
+    tamanho       BIGINT NOT NULL,
+
+    usuario_id    INTEGER NOT NULL
+                  REFERENCES users(id)
+                  ON DELETE CASCADE,
+
+    criado_em     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- =====================================================================
+-- ÍNDICE: videos.usuario_id
+-- =====================================================================
 
 CREATE INDEX IF NOT EXISTS idx_videos_usuario_id
     ON videos (usuario_id);
@@ -93,42 +110,50 @@ CREATE INDEX IF NOT EXISTS idx_videos_usuario_id
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS chamados (
-    id              SERIAL PRIMARY KEY,
+    id            SERIAL PRIMARY KEY,
 
     -- Exemplo: OS-0042
-    -- Preenchido pelo backend após o INSERT
-    numero          VARCHAR(20) UNIQUE,
+    -- Preenchido pelo backend depois do INSERT.
+    numero        VARCHAR(20) UNIQUE,
 
-    titulo          VARCHAR(150) NOT NULL,
-    descricao       TEXT NOT NULL,
-    categoria       VARCHAR(50) NOT NULL,
+    titulo        VARCHAR(150) NOT NULL,
 
-    prioridade      VARCHAR(10) NOT NULL DEFAULT 'media'
-                    CHECK (
-                        prioridade IN (
-                            'baixa',
-                            'media',
-                            'alta',
-                            'urgente'
-                        )
-                    ),
+    descricao     TEXT NOT NULL,
 
-    status          VARCHAR(20) NOT NULL DEFAULT 'aberto'
-                    CHECK (
-                        status IN (
-                            'aberto',
-                            'andamento',
-                            'resolvido'
-                        )
-                    ),
+    categoria     VARCHAR(50) NOT NULL,
 
-    usuario_id      INTEGER NOT NULL
-                    REFERENCES users(id)
-                    ON DELETE CASCADE,
+    prioridade    VARCHAR(10) NOT NULL DEFAULT 'media'
+                  CHECK (
+                      prioridade IN (
+                          'baixa',
+                          'media',
+                          'alta',
+                          'urgente'
+                      )
+                  ),
 
-    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    atualizado_em   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    status        VARCHAR(20) NOT NULL DEFAULT 'aberto'
+                  CHECK (
+                      status IN (
+                          'aberto',
+                          'andamento',
+                          'resolvido'
+                      )
+                  ),
+
+    usuario_id    INTEGER NOT NULL
+                  REFERENCES users(id)
+                  ON DELETE CASCADE,
+
+    criado_em     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- =====================================================================
+-- ÍNDICES: chamados
+-- =====================================================================
 
 CREATE INDEX IF NOT EXISTS idx_chamados_status
     ON chamados (status);
@@ -142,6 +167,10 @@ CREATE INDEX IF NOT EXISTS idx_chamados_prioridade
 CREATE INDEX IF NOT EXISTS idx_chamados_usuario_id
     ON chamados (usuario_id);
 
+
+-- =====================================================================
+-- TRIGGER: chamados.atualizado_em
+-- =====================================================================
 
 DROP TRIGGER IF EXISTS trg_chamados_atualizado_em ON chamados;
 
@@ -157,17 +186,23 @@ CREATE TRIGGER trg_chamados_atualizado_em
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS chamado_anexos (
-    id              SERIAL PRIMARY KEY,
+    id               SERIAL PRIMARY KEY,
 
-    chamado_id      INTEGER NOT NULL
-                    REFERENCES chamados(id)
-                    ON DELETE CASCADE,
+    chamado_id       INTEGER NOT NULL
+                     REFERENCES chamados(id)
+                     ON DELETE CASCADE,
 
-    caminho_arquivo VARCHAR(255) NOT NULL,
-    nome_original   VARCHAR(255) NOT NULL,
+    caminho_arquivo  VARCHAR(255) NOT NULL,
 
-    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    nome_original    VARCHAR(255) NOT NULL,
+
+    criado_em        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- =====================================================================
+-- ÍNDICE: chamado_anexos.chamado_id
+-- =====================================================================
 
 CREATE INDEX IF NOT EXISTS idx_chamado_anexos_chamado_id
     ON chamado_anexos (chamado_id);
@@ -179,20 +214,25 @@ CREATE INDEX IF NOT EXISTS idx_chamado_anexos_chamado_id
 -- =====================================================================
 
 CREATE TABLE IF NOT EXISTS chamado_comentarios (
-    id              SERIAL PRIMARY KEY,
+    id          SERIAL PRIMARY KEY,
 
-    chamado_id      INTEGER NOT NULL
-                    REFERENCES chamados(id)
-                    ON DELETE CASCADE,
+    chamado_id  INTEGER NOT NULL
+                REFERENCES chamados(id)
+                ON DELETE CASCADE,
 
-    autor_id        INTEGER
-                    REFERENCES users(id)
-                    ON DELETE SET NULL,
+    autor_id    INTEGER
+                REFERENCES users(id)
+                ON DELETE SET NULL,
 
-    mensagem        TEXT NOT NULL,
+    mensagem    TEXT NOT NULL,
 
-    criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    criado_em   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- =====================================================================
+-- ÍNDICE: chamado_comentarios.chamado_id
+-- =====================================================================
 
 CREATE INDEX IF NOT EXISTS idx_chamado_comentarios_chamado_id
     ON chamado_comentarios (chamado_id);
