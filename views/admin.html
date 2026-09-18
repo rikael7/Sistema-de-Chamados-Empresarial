@@ -576,7 +576,6 @@
   }
 
   // Requer um endpoint DELETE /api/chamados/:id no backend
-  // (o controller enviado ainda não tem essa rota — ver nota no chat).
   async function excluirChamado(id, wrapper) {
     try {
       const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
