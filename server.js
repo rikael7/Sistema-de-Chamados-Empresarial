@@ -140,7 +140,18 @@ app.get(
     failureRedirect: "/login",
   }),
   (req, res) => {
+
+     req.session.userId = req.user.id;
+
+    req.session.save((err) => {
+      if (err) {
+        console.error("Erro ao salvar sessão:", err);
+        return res.redirect("/login");
+      }
+
     res.redirect("/");
+
+    });
   },
 );
 
