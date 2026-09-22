@@ -68,6 +68,48 @@ app.use(
   }),
 );
 
+
+// =================
+// enviar front
+// =============
+app.use(express.static(path.join(__dirname, "public")));
+// =================
+// Sanitização
+// =============
+app.use(sanitizeBody);
+app.use(sanitizeQuery);
+
+// =================
+// Seções do Postgree
+// =============
+app.use(
+  session({
+    store: new pgSession({
+      pool: pool,
+      tableName: "sessions",
+      createTableIfMissing: true,
+    }),
+
+    key: "connect.sid",
+
+    secret: process.env.SESSION_SECRET,
+
+    resave: false,
+
+    saveUninitialized: false,
+
+    cookie: {
+      httpOnly: true,
+
+      secure: process.env.NODE_ENV === "production",
+
+      maxAge: 1000 * 60 * 60 * 24, // 1 dia
+    },
+  }),
+);
+
+
+
 // ============
 // adicione features abaixo
 // ==================
@@ -114,44 +156,8 @@ app.get(
 
 
 
-// =================
-// enviar front
-// =============
-app.use(express.static(path.join(__dirname, "public")));
-// =================
-// Sanitização
-// =============
-app.use(sanitizeBody);
-app.use(sanitizeQuery);
 
-// =================
-// Seções do Postgree
-// =============
-app.use(
-  session({
-    store: new pgSession({
-      pool: pool,
-      tableName: "sessions",
-      createTableIfMissing: true,
-    }),
 
-    key: "connect.sid",
-
-    secret: process.env.SESSION_SECRET,
-
-    resave: false,
-
-    saveUninitialized: false,
-
-    cookie: {
-      httpOnly: true,
-
-      secure: process.env.NODE_ENV === "production",
-
-      maxAge: 1000 * 60 * 60 * 24, // 1 dia
-    },
-  }),
-);
 // =================
 // enviar front
 // =============
