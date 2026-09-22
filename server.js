@@ -6,11 +6,10 @@ const { Pool } = require("pg");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
 // ==========
-// google autenticação
+// GOOGLE AUTENTICAÇÃO
 // =============
 const passport = require("./config/passport");
-
-
+//  --------------------
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,31 +28,35 @@ const limiter = rateLimit({
 });
 // Aplica em TODAS as rotas
 app.use(limiter);
+//  --------------------
 
 // =================
-// Import de Middlewares
+// IMPORT MIDDLEWARES
 // =============
 const { sanitizeBody, sanitizeQuery } = require("./middleware/sanitize");
 const { isAuthenticated, admin } = require("./middleware/authMiddleware");
 // middleware para bloquear usuario autenticado de entrar na rota get de register e em login
 const authtrue = require("./middleware/authtrue");
+//  --------------------
 
 // =================
-// Import de rotas
+// IMPORT ROTAS
 // =============
 const authRoutes = require("./routes/authRoutes");
 const publicupload = require("./routes/publicupload");
 const protectedRoutes = require("./routes/protectedRoutes");
 const chamados = require("./routes/chamados");
+//  --------------------
 
 // =================
-// websocket
+// WEBSOCKET
 // =============
 const http = require("http");
 const server = http.createServer(app);
+//  --------------------
 
 // =================
-// Pool do Postgree
+// POOL POSTGREE
 // =============
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -61,9 +64,10 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
+//  --------------------
 
 // =================
-// bloquear Payload gigante
+// BLOQUEAR PAYLOAD GIGANTE
 // =============
 app.use(express.json({ limit: "100kb" }));
 app.use(
@@ -72,19 +76,23 @@ app.use(
     limit: "100kb",
   }),
 );
+//  --------------------
 
 // =================
-// enviar front
+// ENVIAR FRONTEND
 // =============
 app.use(express.static(path.join(__dirname, "public")));
+//  --------------------
+
 // =================
-// Sanitização
+// SANITIZAÇÃO
 // =============
 app.use(sanitizeBody);
 app.use(sanitizeQuery);
+//  --------------------
 
 // =================
-// Seções do Postgree
+// SESSÕES POSTGRES
 // =============
 app.use(
   session({
@@ -95,33 +103,27 @@ app.use(
     }),
 
     key: "connect.sid",
-
     secret: process.env.SESSION_SECRET,
-
     resave: false,
-
     saveUninitialized: false,
 
     cookie: {
       httpOnly: true,
-
       secure: process.env.NODE_ENV === "production",
-
       maxAge: 1000 * 60 * 60 * 24, // 1 dia
     },
   }),
 );
+//  --------------------
 
 // ==========================****************************=============================
-// adicione features abaixo
-// ==================
+// ADICIONE AS FEATS ABAIXO
+// ==========================****************************=============================
 
 // =======================
-// Login com google
+// LOGIN COM GOOGLE
 // ======================
 // const session = require("express-session");
-
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -140,8 +142,7 @@ app.get(
     failureRedirect: "/login",
   }),
   (req, res) => {
-
-     req.session.userId = req.user.id;
+    req.session.userId = req.user.id;
 
     req.session.save((err) => {
       if (err) {
@@ -149,8 +150,7 @@ app.get(
         return res.redirect("/login");
       }
 
-    res.redirect("/");
-
+      res.redirect("/");
     });
   },
 );
@@ -158,7 +158,7 @@ app.get(
 // -------------
 
 // =================
-// front
+// FRONTEND PRIVADO
 // =============
 
 app.get("/", isAuthenticated, (req, res) => {
@@ -169,8 +169,10 @@ app.get("/admin", isAuthenticated, admin, (req, res) => {
   res.sendFile(path.join(__dirname, "views", "admin.html"));
 });
 
+//  --------------------
+
 // =================
-// frontend publico
+// FRONTEND PUBLICO
 // =============
 
 app.get("/login", authtrue, (req, res) => {
@@ -185,6 +187,8 @@ app.get("/404", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "404.html"));
 });
 
+//  --------------------
+
 // ===============
 // ROTAS API
 // ===============
@@ -193,7 +197,7 @@ app.use("/api", chamados);
 // -------------
 
 // ===============
-// Erro genérico
+// ERRO GENERICO
 // ===============
 app.use((err, req, res, next) => {
   console.error("Erro não tratado:", err);
@@ -201,13 +205,18 @@ app.use((err, req, res, next) => {
     error: "Erro interno do servidor.",
   });
 });
+
+//  --------------------
+
 // ===============
-// se não encontrar nenhuma rota
+// NÃO ACHOU ROTAS
 // Middleware 404 (sempre por último pois o node le de cima para baixo as rotas, caso não encontre nada vai cair nessa)
 // ===============
 app.use((req, res) => {
   res.redirect("/404");
 });
+
+//  --------------------
 
 server.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
