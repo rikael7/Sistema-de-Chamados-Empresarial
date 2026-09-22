@@ -28,7 +28,7 @@ passport.use(
 
         const novoUsuario = await pool.query(
           `INSERT INTO users
-                    (google_id, nome, email, foto)
+                    (google_id, name, email, foto)
                     VALUES ($1, $2, $3, $4)
                     RETURNING *`,
           [googleId, nome, email, foto],
