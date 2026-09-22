@@ -9,10 +9,9 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-
-
+// ===============
 // RATE LIMIT
+// ===============
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   limit: 100, // máximo de 100 requisições por IP
@@ -68,7 +67,6 @@ app.use(
   }),
 );
 
-
 // =================
 // enviar front
 // =============
@@ -108,9 +106,7 @@ app.use(
   }),
 );
 
-
-
-// ============
+// ==========================****************************=============================
 // adicione features abaixo
 // ==================
 
@@ -144,22 +140,8 @@ app.get(
 
 // -------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // =================
-// enviar front
+// front
 // =============
 
 app.get("/", isAuthenticated, (req, res) => {
@@ -186,20 +168,26 @@ app.get("/404", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "404.html"));
 });
 
+// ===============
 // ROTAS API
+// ===============
 app.use("/auth", authRoutes);
 app.use("/api", chamados);
+// -------------
 
+// ===============
 // Erro genérico
+// ===============
 app.use((err, req, res, next) => {
   console.error("Erro não tratado:", err);
   res.status(500).json({
     error: "Erro interno do servidor.",
   });
 });
-
+// ===============
 // se não encontrar nenhuma rota
 // Middleware 404 (sempre por último pois o node le de cima para baixo as rotas, caso não encontre nada vai cair nessa)
+// ===============
 app.use((req, res) => {
   res.redirect("/404");
 });
@@ -208,8 +196,3 @@ server.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
 // ================
-
-//
-// app.listen(PORT, () => {
-//     console.log(`Servidor rodando na porta ${PORT}`);
-// });
