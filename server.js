@@ -5,6 +5,12 @@ const pgSession = require("connect-pg-simple")(session);
 const { Pool } = require("pg");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+// ==========
+// google autenticação
+// =============
+const passport = require("./config/passport");
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -114,7 +120,7 @@ app.use(
 // Login com google
 // ======================
 // const session = require("express-session");
-const passport = require("./config/passport");
+
 
 app.use(passport.initialize());
 app.use(passport.session());
