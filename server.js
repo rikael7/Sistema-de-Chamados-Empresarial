@@ -9,6 +9,44 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// =======================
+// Login com google
+// ======================
+const session = require("express-session");
+const passport = require("./config/passport");
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// manda para o google
+app.get(
+    "/auth/google",
+    passport.authenticate("google", {
+        scope: ["profile", "email"]
+    })
+);
+
+
+// google retorna (webhook) 
+app.get(
+    "/auth/google/callback",
+    passport.authenticate("google", {
+        failureRedirect: "/login"
+    }),
+    (req, res) => {
+
+        res.redirect("/");
+
+    }
+);
+
+
+
+
+// -------------
+
+
+
 // RATE LIMIT
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
