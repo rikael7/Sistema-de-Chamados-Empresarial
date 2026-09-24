@@ -1,6 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { finduserbyname, findUserByEmail, createUser } = require('../models/userModel');
+// const { finduserbyname, findUserByEmail, createUser } = require('../models/userModel');
+
+// feat: confirmar email
+const { sendVerificationEmail } = require('../utils/email');
+// ---------
 
 const {
   registerValidationRules,
@@ -14,49 +18,256 @@ const router = express.Router();
 const SALT_ROUNDS = 10;
 
 
+// feat: confirmar email
+const crypto = require("crypto");
+
+const {
+    finduserbyname,
+    findUserByEmail,
+    createUser,
+    findPendingUserByEmail,
+    createPendingUser,
+    findPendingUserByTokenHash,
+    deletePendingUser
+} = require('../models/userModel');
+
+// -----
+
+
+
+
+// feat: confirmar email
+
 // POST /auth/register
 router.post(
-  '/register',
-  registerValidationRules,
-  handleValidationErrors, 
-  async (req, res) => {
-    try {
-      const { name, email, password } = req.body;
+    '/register',
+    registerValidationRules,
+    handleValidationErrors,
+    async (req, res) => {
+        try {
+            const { name, email, password } = req.body;
 
-      const existingUser = await findUserByEmail(email);
+            // 1. Verifica se o usuário já existe
+            const existingUser = await findUserByEmail(email);
 
-      if (existingUser) {
-        return res.status(409).json({
-          error: 'Este email já está cadastrado.'
-        });
-      }
+            if (existingUser) {
+                return res.status(409).json({
+                    error: 'Este email já está cadastrado.'
+                });
+            }
 
-      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+            // 2. Verifica se já existe cadastro pendente
+            const existingPendingUser =
+                await findPendingUserByEmail(email);
 
-      const user = await createUser({
-        name,
-        email,
-        passwordHash
-      });
+            if (existingPendingUser) {
+                return res.status(409).json({
+                    error: 'Já existe um cadastro pendente para este email. Verifique sua caixa de entrada.'
+                });
+            }
 
-      return res.status(201).json({
-        message: 'Usuário registrado com sucesso.',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email
+            // 3. Gera hash da senha
+            const passwordHash = await bcrypt.hash(
+                password,
+                SALT_ROUNDS
+            );
+
+            // 4. Gera token aleatório
+            const token = crypto
+                .randomBytes(32)
+                .toString('hex');
+
+            // 5. NÃO salva o token original
+            //    salva somente o SHA-256
+            const tokenHash = crypto
+                .createHash('sha256')
+                .update(token)
+                .digest('hex');
+
+            // 6. Token expira em 30 minutos
+            const expiresAt = new Date(
+                Date.now() + 30 * 60 * 1000
+            );
+
+            // 7. Salva cadastro pendente
+            await createPendingUser({
+                name,
+                email,
+                passwordHash,
+                tokenHash,
+                expiresAt
+            });
+
+            // 8. Envia e-mail
+            await sendVerificationEmail(
+                email,
+                name,
+                token
+            );
+
+            // 9. NÃO cria usuário ainda
+            return res.status(201).json({
+                message:
+                    'Cadastro iniciado. Verifique seu e-mail para confirmar a conta.'
+            });
+
+        } catch (err) {
+            console.error(
+                'Erro no registro:',
+                err
+            );
+
+            return res.status(500).json({
+                error:
+                    'Erro interno ao iniciar cadastro.'
+            });
         }
-      });
-
-    } catch (err) {
-      console.error('Erro no registro:', err);
-
-      return res.status(500).json({
-        error: 'Erro interno ao registrar usuário.'
-      });
     }
-  }
 );
+
+
+// GET /auth/verify-email
+router.get(
+    '/verify-email',
+    async (req, res) => {
+        try {
+            const { token } = req.query;
+
+            // 1. Verifica se recebeu token
+            if (!token) {
+                return res.status(400).send(
+                    'Token de verificação ausente.'
+                );
+            }
+
+            // 2. Calcula o hash do token recebido
+            const tokenHash = crypto
+                .createHash('sha256')
+                .update(token)
+                .digest('hex');
+
+            // 3. Procura o cadastro pendente
+            const pendingUser =
+                await findPendingUserByTokenHash(
+                    tokenHash
+                );
+
+            // 4. Token não encontrado
+            if (!pendingUser) {
+                return res.status(400).send(
+                    'Link de verificação inválido ou expirado.'
+                );
+            }
+
+            // 5. Verifica expiração
+            if (
+                new Date(pendingUser.expires_at) < new Date()
+            ) {
+                await deletePendingUser(
+                    pendingUser.id
+                );
+
+                return res.status(400).send(
+                    'Este link de verificação expirou.'
+                );
+            }
+
+            // 6. Verifica se o e-mail já possui uma conta
+            const existingUser =
+                await findUserByEmail(
+                    pendingUser.email
+                );
+
+            if (existingUser) {
+                await deletePendingUser(
+                    pendingUser.id
+                );
+
+                return res.status(409).send(
+                    'Este e-mail já possui uma conta.'
+                );
+            }
+
+            // 7. Finalmente cria o usuário
+            const user = await createUser({
+                name: pendingUser.name,
+                email: pendingUser.email,
+                passwordHash: pendingUser.password_hash
+            });
+
+            // 8. Remove cadastro pendente
+            await deletePendingUser(
+                pendingUser.id
+            );
+
+            // 9. Redireciona para login
+            return res.redirect('/login');
+
+        } catch (err) {
+            console.error(
+                'Erro ao verificar e-mail:',
+                err
+            );
+
+            return res.status(500).send(
+                'Erro interno ao verificar e-mail.'
+            );
+        }
+    }
+);
+
+
+
+
+
+// //////////////////////
+
+
+
+
+// POST /auth/register
+// router.post(
+//   '/register',
+//   registerValidationRules,
+//   handleValidationErrors, 
+//   async (req, res) => {
+//     try {
+//       const { name, email, password } = req.body;
+
+//       const existingUser = await findUserByEmail(email);
+
+//       if (existingUser) {
+//         return res.status(409).json({
+//           error: 'Este email já está cadastrado.'
+//         });
+//       }
+
+//       const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+//       const user = await createUser({
+//         name,
+//         email,
+//         passwordHash
+//       });
+
+//       return res.status(201).json({
+//         message: 'Usuário registrado com sucesso.',
+//         user: {
+//           id: user.id,
+//           name: user.name,
+//           email: user.email
+//         }
+//       });
+
+//     } catch (err) {
+//       console.error('Erro no registro:', err);
+
+//       return res.status(500).json({
+//         error: 'Erro interno ao registrar usuário.'
+//       });
+//     }
+//   }
+// );
 
 
 // POST /auth/login

@@ -1,5 +1,97 @@
 const { pool }= require("../config/dbpg");
+// const crypto = require("crypto");
 
+
+// ======================================================
+// // feat: confirmar email
+// ======================================================
+
+async function createPendingUser({
+    name,
+    email,
+    passwordHash,
+    tokenHash,
+    expiresAt
+}) {
+
+    const result = await pool.query(
+        `
+        INSERT INTO pending_users
+        (
+            name,
+            email,
+            password_hash,
+            verification_token_hash,
+            expires_at
+        )
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, name, email
+        `,
+        [
+            name,
+            email,
+            passwordHash,
+            tokenHash,
+            expiresAt
+        ]
+    );
+
+    return result.rows[0];
+}
+
+async function findPendingUserByTokenHash(tokenHash) {
+
+    const result = await pool.query(
+        `
+        SELECT
+            id,
+            name,
+            email,
+            password_hash,
+            verification_token_hash,
+            expires_at
+        FROM pending_users
+        WHERE verification_token_hash = $1
+        LIMIT 1
+        `,
+        [tokenHash]
+    );
+
+    return result.rows[0] || null;
+}
+
+async function deletePendingUser(id) {
+
+    await pool.query(
+        `
+        DELETE FROM pending_users
+        WHERE id = $1
+        `,
+        [id]
+    );
+}
+
+async function findPendingUserByEmail(email) {
+    const result = await pool.query(
+        `
+        SELECT
+            id,
+            name,
+            email,
+            password_hash,
+            verification_token_hash,
+            expires_at
+        FROM pending_users
+        WHERE email = $1
+        LIMIT 1
+        `,
+        [email]
+    );
+
+    return result.rows[0] || null;
+}
+
+// ////////////////////////
 
 // ======================================================
 // CONTROLLER ADMIN
@@ -220,7 +312,15 @@ module.exports = {
     finduserbyname,
     findUserById,
     createUser,
-    updateUserProfile
+    updateUserProfile,
+
+    // feat: confirmar email
+     createPendingUser,
+    findPendingUserByTokenHash,
+    findPendingUserByEmail,
+    deletePendingUser
+    // 
+
 };
 
 
