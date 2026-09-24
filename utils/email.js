@@ -1,18 +1,6 @@
+const { Resend } = require("resend");
 
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendVerificationEmail(email, name, token) {
 
@@ -24,11 +12,11 @@ async function sendVerificationEmail(email, name, token) {
 
     try {
 
-        const info = await transporter.sendMail({
+        const { data, error } = await resend.emails.send({
 
-            from: `"Sistema de Chamados" <${process.env.EMAIL_USER}>`,
+            from: process.env.EMAIL_FROM,
 
-            to: email,
+            to: [email],
 
             subject: "Confirme seu e-mail",
 
@@ -80,10 +68,16 @@ async function sendVerificationEmail(email, name, token) {
             `
         });
 
-        console.log("✅ E-mail enviado com sucesso!");
-        console.log("📨 Message ID:", info.messageId);
+        if (error) {
+            console.error("❌ Erro retornado pelo Resend:");
+            console.error(error);
+            throw new Error(error.message || "Erro ao enviar e-mail.");
+        }
 
-        return info;
+        console.log("✅ E-mail enviado com sucesso!");
+        console.log("📨 ID:", data.id);
+
+        return data;
 
     } catch (error) {
 
@@ -97,4 +91,3 @@ async function sendVerificationEmail(email, name, token) {
 module.exports = {
     sendVerificationEmail
 };
-
