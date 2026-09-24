@@ -201,7 +201,7 @@ router.get(
             );
 
             // 9. Redireciona para login
-            return res.redirect('/login');
+            return res.redirect('/email-verificado');
 
         } catch (err) {
             console.error(

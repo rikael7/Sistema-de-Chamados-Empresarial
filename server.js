@@ -183,6 +183,10 @@ app.get("/register", authtrue, (req, res) => {
   res.sendFile(path.join(__dirname, "views", "register.html"));
 });
 
+app.get("/email-verificado", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "verificado.html"));
+});
+
 app.get("/404", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "404.html"));
 });
