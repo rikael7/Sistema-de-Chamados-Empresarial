@@ -1,35 +1,18 @@
+
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-
-    family: 4,
-
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    service: "gmail",
 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
-});
+    },
 
-transporter.verify()
-    .then(() => {
-        console.log("=================================");
-        console.log("✅ SMTP FUNCIONANDO");
-        console.log("=================================");
-    })
-    .catch((err) => {
-        console.error("=================================");
-        console.error("❌ ERRO SMTP");
-        console.error(err);
-        console.error("=================================");
-    });
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
+});
 
 async function sendVerificationEmail(email, name, token) {
 
@@ -37,40 +20,81 @@ async function sendVerificationEmail(email, name, token) {
         `${process.env.APP_URL}/auth/verify-email?token=${token}`;
 
     console.log("📨 Enviando e-mail para:", email);
+    console.log("🔗 Link:", verificationUrl);
 
-    const info = await transporter.sendMail({
-        from: `"Sistema de Chamados" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: "Confirme seu e-mail",
+    try {
 
-        html: `
-            <h2>Olá, ${name}!</h2>
+        const info = await transporter.sendMail({
 
-            <p>
-                Seu cadastro foi iniciado.
-            </p>
+            from: `"Sistema de Chamados" <${process.env.EMAIL_USER}>`,
 
-            <p>
-                Clique abaixo para confirmar seu e-mail:
-            </p>
+            to: email,
 
-            <p>
-                <a href="${verificationUrl}">
-                    Confirmar e-mail
-                </a>
-            </p>
+            subject: "Confirme seu e-mail",
 
-            <p>
-                Este link expira em 30 minutos.
-            </p>
-        `
-    });
+            html: `
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                ">
 
-    console.log("✅ E-mail enviado:", info.messageId);
+                    <h2>Olá, ${name}!</h2>
 
-    return info;
+                    <p>
+                        Seu cadastro no Sistema de Chamados foi iniciado.
+                    </p>
+
+                    <p>
+                        Para confirmar seu endereço de e-mail,
+                        clique no botão abaixo:
+                    </p>
+
+                    <p>
+                        <a
+                            href="${verificationUrl}"
+                            style="
+                                display: inline-block;
+                                padding: 12px 20px;
+                                background: #2563eb;
+                                color: #ffffff;
+                                text-decoration: none;
+                                border-radius: 6px;
+                            "
+                        >
+                            Confirmar meu e-mail
+                        </a>
+                    </p>
+
+                    <p>
+                        Este link expira em <strong>30 minutos</strong>.
+                    </p>
+
+                    <p>
+                        Se você não realizou este cadastro,
+                        simplesmente ignore este e-mail.
+                    </p>
+
+                </div>
+            `
+        });
+
+        console.log("✅ E-mail enviado com sucesso!");
+        console.log("📨 Message ID:", info.messageId);
+
+        return info;
+
+    } catch (error) {
+
+        console.error("❌ Erro ao enviar e-mail:");
+        console.error(error);
+
+        throw error;
+    }
 }
 
 module.exports = {
     sendVerificationEmail
 };
+
