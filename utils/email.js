@@ -6,65 +6,69 @@ const transporter = nodemailer.createTransport({
     secure: false,
     requireTLS: true,
 
+    family: 4,
+
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     }
 });
 
+transporter.verify()
+    .then(() => {
+        console.log("=================================");
+        console.log("✅ SMTP FUNCIONANDO");
+        console.log("=================================");
+    })
+    .catch((err) => {
+        console.error("=================================");
+        console.error("❌ ERRO SMTP");
+        console.error(err);
+        console.error("=================================");
+    });
+
 async function sendVerificationEmail(email, name, token) {
 
     const verificationUrl =
         `${process.env.APP_URL}/auth/verify-email?token=${token}`;
 
-    await transporter.sendMail({
+    console.log("📨 Enviando e-mail para:", email);
+
+    const info = await transporter.sendMail({
         from: `"Sistema de Chamados" <${process.env.EMAIL_USER}>`,
-
         to: email,
-
         subject: "Confirme seu e-mail",
 
         html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+            <h2>Olá, ${name}!</h2>
 
-                <h2>Olá, ${name}!</h2>
+            <p>
+                Seu cadastro foi iniciado.
+            </p>
 
-                <p>
-                    Você iniciou um cadastro no Sistema de Chamados.
-                </p>
+            <p>
+                Clique abaixo para confirmar seu e-mail:
+            </p>
 
-                <p>
-                    Para confirmar seu endereço de e-mail e finalizar
-                    a criação da sua conta, clique no botão abaixo:
-                </p>
+            <p>
+                <a href="${verificationUrl}">
+                    Confirmar e-mail
+                </a>
+            </p>
 
-                <p style="margin: 30px 0;">
-                    <a
-                        href="${verificationUrl}"
-                        style="
-                            background: #3b6df0;
-                            color: white;
-                            padding: 14px 22px;
-                            text-decoration: none;
-                            border-radius: 8px;
-                            display: inline-block;
-                        "
-                    >
-                        Confirmar meu e-mail
-                    </a>
-                </p>
-
-                <p>
-                    Este link expira em 30 minutos.
-                </p>
-
-                <p>
-                    Se você não solicitou este cadastro, ignore este e-mail.
-                </p>
-
-            </div>
+            <p>
+                Este link expira em 30 minutos.
+            </p>
         `
     });
+
+    console.log("✅ E-mail enviado:", info.messageId);
+
+    return info;
 }
 
 module.exports = {
