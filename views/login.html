@@ -3,361 +3,328 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de chamados — Entrar</title>
+    <title>CallSystem — Entrar</title>
 
     <style>
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
-
-  background: #f4f5f7;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  color: #1f1f1f;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.topbar {
-  width: 100%;
-  max-width: 1500px;
-  padding: 32px 40px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1d29;
-}
-
-.logo svg {
-  flex-shrink: 0;
-}
-
-.card-wrap {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 20px 20px 80px;
-}
-
-.card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 48px 52px 44px;
-  width: 100%;
-  max-width: 460px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
-/* Texto auxiliar */
-.eyebrow {
-  color: #8a8a8a;
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 8px;
-  letter-spacing: 0.01em;
-}
-
-/* Título */
-h1 {
-  font-size: 30px;
-  line-height: 1.2;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #1f1f1f;
-  margin-bottom: 32px;
-}
-
-/* Campos */
-.field {
-  width: 100%;
-  padding: 14px 16px;
-
-  border: 1px solid #d7dae0;
-  border-radius: 10px;
-
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.5;
-  color: #1f1f1f;
-
-  background: #fff;
-  margin-bottom: 16px;
-  outline: none;
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.field::placeholder {
-  color: #9a9a9a;
-}
-
-.field:focus {
-  border-color: #3b6df0;
-  box-shadow: 0 0 0 3px rgba(59, 109, 240, 0.12);
-}
-
-.field.error {
-  border-color: #e0504f;
-}
-
-.error-msg {
-  color: #e0504f;
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.4;
-  margin: -10px 0 14px;
-  display: none;
-}
-
-/* Opções */
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-
-.remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #4a4a4a;
-
-  cursor: pointer;
-  user-select: none;
-}
-
-.remember input {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  accent-color: #3b6df0;
-  cursor: pointer;
-}
-
-.forgot {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #3b6df0;
-
-  text-decoration: underline;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-/* Botão principal */
-.btn-primary {
-  width: 100%;
-  padding: 14px;
-
-  background: #3b6df0;
-  color: #fff;
-
-  border: none;
-  border-radius: 10px;
-
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.4;
-  font-weight: 600;
-
-  cursor: pointer;
-  margin-bottom: 14px;
-
-  transition:
-    background 0.15s ease,
-    transform 0.05s ease;
-}
-
-.btn-primary:hover {
-  background: #2f5cd6;
-}
-
-.btn-primary:active {
-  transform: translateY(1px);
-}
-
-.btn-primary:disabled {
-  background: #9db3f2;
-  cursor: not-allowed;
-}
-
-/* Google */
-.btn-google {
-  width: 100%;
-  padding: 13px;
-
-  background: #fff;
-  color: #1f1f1f;
-
-  border: 1px solid #d7dae0;
-  border-radius: 10px;
-
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.4;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  margin-bottom: 14px;
-
-  transition: background 0.15s ease;
-}
-
-.btn-google:hover {
-  background: #f9fafb;
-}
-
-/* Recrutador */
-.btn-recruiter {
-  width: 100%;
-  padding: 13px;
-
-  background: #fff;
-  color: #1f1f1f;
-
-  border: 1px dashed #3b6df0;
-  border-radius: 10px;
-
-  font-family: inherit;
-  font-size: 14.5px;
-  line-height: 1.4;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  margin-bottom: 24px;
-
-  transition: background 0.15s ease;
-}
-
-.btn-recruiter:hover {
-  background: #eef2ff;
-}
-
-.btn-recruiter svg {
-  flex-shrink: 0;
-}
-
-/* Rodapé */
-.footer-text {
-  text-align: center;
-
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-
-  color: #6b7280;
-}
-
-.footer-text a {
-  color: #3b6df0;
-  text-decoration: underline;
-  font-weight: 500;
-}
-
-/* Mensagem do servidor */
-.server-msg {
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.5;
-
-  text-align: center;
-  margin-bottom: 16px;
-
-  display: none;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.server-msg.error {
-  display: block;
-  background: #fdecea;
-  color: #b3261e;
-}
-
-.server-msg.success {
-  display: block;
-  background: #e6f4ea;
-  color: #1e7e34;
-}
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Georgia, "Times New Roman", serif;
+
+        background: #f4f5f7;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        color: #1f1f1f;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .topbar {
+        width: 100%;
+        max-width: 1500px;
+        padding: 32px 40px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1d29;
+      }
+
+      .logo svg {
+        flex-shrink: 0;
+      }
+
+      .card-wrap {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 20px 20px 80px;
+      }
+
+      .card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 48px 52px 44px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      }
+
+      /* Texto auxiliar */
+      .eyebrow {
+        color: #8a8a8a;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 8px;
+        letter-spacing: 0.01em;
+      }
+
+      /* Título */
+      h1 {
+        font-size: 30px;
+        line-height: 1.2;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: #1f1f1f;
+        margin-bottom: 32px;
+      }
+
+      /* Campos */
+      .field {
+        width: 100%;
+        padding: 14px 16px;
+
+        border: 1px solid #d7dae0;
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #1f1f1f;
+
+        background: #fff;
+        margin-bottom: 16px;
+        outline: none;
+
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .field::placeholder {
+        color: #9a9a9a;
+      }
+
+      .field:focus {
+        border-color: #3b6df0;
+        box-shadow: 0 0 0 3px rgba(59, 109, 240, 0.12);
+      }
+
+      .field.error {
+        border-color: #e0504f;
+      }
+
+      .error-msg {
+        color: #e0504f;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.4;
+        margin: -10px 0 14px;
+        display: none;
+      }
+
+      /* Opções */
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+      }
+
+      .remember {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #4a4a4a;
+
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .remember input {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        accent-color: #3b6df0;
+        cursor: pointer;
+      }
+
+      .forgot {
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #3b6df0;
+
+        text-decoration: underline;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* Botão principal */
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+
+        background: #3b6df0;
+        color: #fff;
+
+        border: none;
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 600;
+
+        cursor: pointer;
+        margin-bottom: 14px;
+
+        transition:
+          background 0.15s ease,
+          transform 0.05s ease;
+      }
+
+      .btn-primary:hover {
+        background: #2f5cd6;
+      }
+
+      .btn-primary:active {
+        transform: translateY(1px);
+      }
+
+      .btn-primary:disabled {
+        background: #9db3f2;
+        cursor: not-allowed;
+      }
+
+      /* Google */
+      .btn-google {
+        width: 100%;
+        padding: 13px;
+
+        background: #fff;
+        color: #1f1f1f;
+
+        border: 1px solid #d7dae0;
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 500;
+
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        margin-bottom: 14px;
+
+        transition: background 0.15s ease;
+      }
+
+      .btn-google:hover {
+        background: #f9fafb;
+      }
+
+      /* Recrutador */
+      .btn-recruiter {
+        width: 100%;
+        padding: 13px;
+
+        background: #fff;
+        color: #1f1f1f;
+
+        border: 1px dashed #3b6df0;
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: 14.5px;
+        line-height: 1.4;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        margin-bottom: 24px;
+
+        transition: background 0.15s ease;
+      }
+
+      .btn-recruiter:hover {
+        background: #eef2ff;
+      }
+
+      .btn-recruiter svg {
+        flex-shrink: 0;
+      }
+
+      /* Rodapé */
+      .footer-text {
+        text-align: center;
+
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.5;
+
+        color: #6b7280;
+      }
+
+      .footer-text a {
+        color: #3b6df0;
+        text-decoration: underline;
+        font-weight: 500;
+      }
+
+      /* Mensagem do servidor */
+      .server-msg {
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.5;
+
+        text-align: center;
+        margin-bottom: 16px;
+
+        display: none;
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .server-msg.error {
+        display: block;
+        background: #fdecea;
+        color: #b3261e;
+      }
+
+      .server-msg.success {
+        display: block;
+        background: #e6f4ea;
+        color: #1e7e34;
+      }
     </style>
   </head>
 
   <body>
-    <!--
-  <div class="topbar">
-    <div class="logo">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path
-          d="M14 2L25 8V20L14 26L3 20V8L14 2Z"
-          stroke="#3b6df0"
-          stroke-width="2"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M3 8L14 14L25 8"
-          stroke="#3b6df0"
-          stroke-width="2"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M14 14V26"
-          stroke="#3b6df0"
-          stroke-width="2"
-        />
-      </svg>
-    </div>
-  </div>
-  -->
 
     <div class="card-wrap">
       <div class="card">
-        <div class="eyebrow">Por favor, insira seus dados</div>
-
         <h1>Bem vindo de volta</h1>
-
         <div id="serverMsg" class="server-msg"></div>
-
         <form id="loginForm" novalidate>
           <input
             type="email"
