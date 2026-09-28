@@ -1,9 +1,8 @@
-
 -- =====================================================================
 -- SCHEMA DO BANCO DE DADOS — Sistema de Chamados Empresarial
 -- PostgreSQL 13+
 --
--- Este schema contempla:
+-- Inclui:
 --   - Cadastro/login tradicional com bcrypt
 --   - Login com Google OAuth
 --   - Sessões do Express via connect-pg-simple
@@ -13,7 +12,7 @@
 --   - Chamados
 --   - Anexos de chamados
 --   - Comentários
---   - Messages
+--   - Mensagens
 -- =====================================================================
 
 BEGIN;
@@ -64,10 +63,11 @@ $$ LANGUAGE plpgsql;
 --   Identificador único fornecido pelo Google OAuth.
 --
 -- avatar_url:
---   Continua sendo a coluna oficial de avatar do projeto.
+--   URL do avatar do usuário.
 --
--- chamado_bloqueado_ate:
---   Utilizado pelo middleware Limitechamados.js.
+-- email:
+--   Deve permanecer UNIQUE para impedir múltiplas contas
+--   com o mesmo endereço.
 --
 -- =====================================================================
 
@@ -250,7 +250,7 @@ CREATE TABLE IF NOT EXISTS chamado_anexos (
         REFERENCES chamados(id)
         ON DELETE CASCADE,
 
-    -- Path interno do arquivo no Supabase Storage.
+    -- Caminho interno do arquivo no Supabase Storage.
     -- Não armazena signed URL.
     caminho_arquivo VARCHAR(255) NOT NULL,
 
@@ -303,12 +303,6 @@ ON chamado_comentarios (chamado_id);
 -- =====================================================================
 -- TABELA: messages
 -- =====================================================================
---
--- Esta tabela é criada atualmente pelo config/dbpg.js.
--- Mantida aqui também para que um banco reconstruído pelo schema.sql
--- possua a mesma estrutura.
---
--- =====================================================================
 
 CREATE TABLE IF NOT EXISTS messages (
 
@@ -342,7 +336,7 @@ ON messages (created_at);
 --
 -- Utilizada pelo connect-pg-simple / express-session.
 --
--- O server.js atualmente utiliza:
+-- server.js:
 --
 --   tableName: 'sessions'
 --
