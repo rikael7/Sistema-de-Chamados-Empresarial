@@ -1,0 +1,135 @@
+05:56 24/09/2026
+
+login recrutador
+recrutadorderikael@outlook.com
+bemvindo548
+
+
+
+no git: 
+feat > adicionar funcionalidade
+fix > correção de bug
+docs > documentação
+style > aplica alteração visual sem mudar logica
+refactor > melhoria interna sem alterar funcionalidade(organizar, remover duplicação)
+test: > adiciona testes
+chore: > manutenção
+perf: > otimisa a performance
+build > alterações no build ou empacotamento
+ci > integração continua e deploy
+
+regras de segurança
+limitar tamanho de payload em kb < server
+sanitize < no server.js
+sql injection < no controller
+limitar tamanho de dados maxlenght < routes
+rate-limit 
+
+projects
+>> rota
+> routes
+// middleware
+** pool 
+{} function
+<= retorno
+(#) explicação
+
+PUBLIC						
+>>/auth/register >app.js //sanitize //authtrue > authroutes.js{createUser} > //{registerValidationRules}validators > userModel.js*pool*(#controller) 		
+>>/auth/login >app.js //sanitize > authroutes.js > //> {findUserByEmail} 
+> userModel.js(controller) > authroutes <backdata: (compara
+hash do db com hash gerado da senha do user) > envia sessioncookie
+>>/auth/logout >app.js // sanitize > authroutes.js > logout 
+
+	
+ADMIN
+
+>>POST /api/chamados  > app.js //sanitize > chamados.js{atualizarPrioridade}> //authMiddleware.js  //admin> chamadosController.js*pool* <= response
+>>POST /api/chamados  > app.js //sanitize > chamados.js{atualizarStatus}> //authMiddleware.js > chamadosController.js*pool* <= response
+>>POST /api/chamados  > app.js //sanitize > chamados.js{deletarChamado}> //authMiddleware.js > chamadosController.js*pool* <= response
+
+
+
+
+USER COMUM
+#frontend valida se o user é um adm, se sim ele mostra o botão de admin que leva a pagina /admin
+>>GET /me/status > app.js //sanitize > chamados.js{statusUsuario} > //authMiddleware.js > chamadosController.js*pool* <= response
+>>GET /api/chamados  > app.js //sanitize > chamados.js{listarChamados} > //authMiddleware.js > chamadosController.js*pool* <= response
+>>GET /api/chamados/:id  > app.js //sanitize > chamados.js{buscarchamado} > //authMiddleware.js > chamadosController.js*pool* <= response
+
+>>POST /api/chamados  > app.js //sanitize > chamados.js{criarchamado}> //authMiddleware.js ////upload.js(#supabase validação) > chamadosController.js*pool* <= response
+																>supabaseAnexos.js{subirAnexo}*poolsupabase*
+
+>>POST /api/chamados/:id/anexos  > app.js //sanitize > chamados.js{buscarchamado} > //authMiddleware.js > chamadosController.js*pool* <= response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+========
+simbologia
+========
+> routes
+{&} função controller com alteração no db
+&& query SQL
+// middleware
+** pool 
+{} function
+<= retorno
+<=(red)    = redireciona client
+{{}} JSON
+(#) explicação
+
+frontGET> frontend mandou GET
+frontPOST> frontend mandou POST
+backendGET> backend mandou
+backendPOST> backend mandou
+
+RES resposta
+<=RESfront  resposta ao frontend
+
+forntGET > /auth/google <=(red) (#google)
+
+
+======================================== ENDPOINTS  ===================
+
+========
+autenticação
+========
+Autenticação
+POST 	/auth/register - PUB - Cadastra usuário
+POST	/auth/login - PUB - 	Faz login
+POST	/auth/logout 
+
+========
+Usuário
+========
+GET/  profile - AUT- retorna se dados dos usuarios
+GET /avatar - AUT - atualiza avatar
+
+
+========
+chamados
+========
+POST /api/chamados - aut - *bparm: titulo, categoria, descricao, anexos
+GET /api/chamados 
+GET /api/chamados/:id
+POST /api/chamados/:id/comentarios
+
+=======
+admin routes
+=========
+PATCH /api/chamados/:id/status - AUTADM - 
+PATCH /api/chamados/15/status -AUTADM-
+PATCH /api/chamados/:id/prioridade  - AUTADM - 
+DELETE /api/chamados/:id  - AUTADM -  

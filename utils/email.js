@@ -3,24 +3,20 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendVerificationEmail(email, name, token) {
+  const verificationUrl = `${process.env.APP_URL}/auth/verify-email?token=${token}`;
 
-    const verificationUrl =
-        `${process.env.APP_URL}/auth/verify-email?token=${token}`;
+  console.log(" Enviando e-mail para:", email);
+  console.log(" Link:", verificationUrl);
 
-    console.log("📨 Enviando e-mail para:", email);
-    console.log("🔗 Link:", verificationUrl);
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
 
-    try {
+      to: [email],
 
-        const { data, error } = await resend.emails.send({
+      subject: "Confirme seu e-mail",
 
-            from: process.env.EMAIL_FROM,
-
-            to: [email],
-
-            subject: "Confirme seu e-mail",
-
-            html: `
+      html: `
                 <div style="
                     font-family: Arial, sans-serif;
                     max-width: 600px;
@@ -31,7 +27,7 @@ async function sendVerificationEmail(email, name, token) {
                     <h2>Olá, ${name}!</h2>
 
                     <p>
-                        Seu cadastro no Sistema de Chamados foi iniciado.
+                        Seu cadastro foi iniciado.
                     </p>
 
                     <p>
@@ -45,7 +41,7 @@ async function sendVerificationEmail(email, name, token) {
                             style="
                                 display: inline-block;
                                 padding: 12px 20px;
-                                background: #2563eb;
+                                background: #b95739;
                                 color: #ffffff;
                                 text-decoration: none;
                                 border-radius: 6px;
@@ -65,29 +61,27 @@ async function sendVerificationEmail(email, name, token) {
                     </p>
 
                 </div>
-            `
-        });
+            `,
+    });
 
-        if (error) {
-            console.error("❌ Erro retornado pelo Resend:");
-            console.error(error);
-            throw new Error(error.message || "Erro ao enviar e-mail.");
-        }
-
-        console.log("✅ E-mail enviado com sucesso!");
-        console.log("📨 ID:", data.id);
-
-        return data;
-
-    } catch (error) {
-
-        console.error("❌ Erro ao enviar e-mail:");
-        console.error(error);
-
-        throw error;
+    if (error) {
+      console.error(" Erro retornado pelo Resend:");
+      console.error(error);
+      throw new Error(error.message || "Erro ao enviar e-mail.");
     }
+
+    console.log(" E-mail enviado com sucesso!");
+    console.log(" ID:", data.id);
+
+    return data;
+  } catch (error) {
+    console.error(" Erro ao enviar e-mail:");
+    console.error(error);
+
+    throw error;
+  }
 }
 
 module.exports = {
-    sendVerificationEmail
+  sendVerificationEmail,
 };

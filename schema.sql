@@ -361,6 +361,33 @@ CREATE INDEX IF NOT EXISTS idx_session_expire
 ON sessions (expire);
 
 
+
+-- =====================================================
+-- USUÁRIO RECRUTADOR / ADMIN
+-- =====================================================
+
+INSERT INTO users (
+    name,
+    email,
+    password_hash,
+    adm
+)
+VALUES (
+    'Recrutador',
+    'recrutadorderikael@outlook.com',
+    crypt('SUA_SENHA_AQUI', gen_salt('bf', 12)),
+    TRUE
+)
+ON CONFLICT (email)
+DO UPDATE SET
+    name = EXCLUDED.name,
+    password_hash = EXCLUDED.password_hash,
+    adm = TRUE,
+    updated_at = NOW();
+
+
+
+
 -- =====================================================================
 -- FINALIZAÇÃO
 -- =====================================================================
