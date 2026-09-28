@@ -6,317 +6,664 @@
     <title>CallSystem — Entrar</title>
 
     <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+  :root {
+    /* =========================
+       CORES
+       ========================= */
 
-      body {
-        font-family: Georgia, "Times New Roman", serif;
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --surface-soft: #f5f4ed;
 
-        background: #f4f5f7;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    --text: #141413;
+    --text-secondary: #5f5e59;
+    --text-muted: #87867f;
 
-        color: #1f1f1f;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
+    --border: #e6e4dc;
+    --border-strong: #d8d6ce;
 
-      .topbar {
-        width: 100%;
-        max-width: 1500px;
-        padding: 32px 40px;
-      }
+    --primary: #c96442;
+    --primary-hover: #b95739;
+    --primary-soft: #f8ebe5;
 
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #1a1d29;
-      }
+    --focus: #3898ec;
 
-      .logo svg {
-        flex-shrink: 0;
-      }
+    --error: #b53333;
+    --error-bg: #fbeceb;
 
-      .card-wrap {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 20px 20px 80px;
-      }
+    --success: #467a4a;
+    --success-bg: #eaf4ea;
 
-      .card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 48px 52px 44px;
-        width: 100%;
-        max-width: 460px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-      }
+    /* =========================
+       MEDIDAS
+       ========================= */
 
-      /* Texto auxiliar */
-      .eyebrow {
-        color: #8a8a8a;
-        font-size: 14px;
-        line-height: 1.5;
-        margin-bottom: 8px;
-        letter-spacing: 0.01em;
-      }
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
 
-      /* Título */
-      h1 {
-        font-size: 30px;
-        line-height: 1.2;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        color: #1f1f1f;
-        margin-bottom: 32px;
-      }
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
 
-      /* Campos */
-      .field {
-        width: 100%;
-        padding: 14px 16px;
+    /* =========================
+       TIPOGRAFIA
+       ========================= */
 
-        border: 1px solid #d7dae0;
-        border-radius: 10px;
+    --font-serif: Georgia, "Times New Roman", serif;
 
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.5;
-        color: #1f1f1f;
+    --font-sans:
+      Inter,
+      ui-sans-serif,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+  }
 
-        background: #fff;
-        margin-bottom: 16px;
-        outline: none;
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-        transition:
-          border-color 0.15s ease,
-          box-shadow 0.15s ease;
-      }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-      .field::placeholder {
-        color: #9a9a9a;
-      }
+  body {
+    min-height: 100vh;
 
-      .field:focus {
-        border-color: #3b6df0;
-        box-shadow: 0 0 0 3px rgba(59, 109, 240, 0.12);
-      }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-      .field.error {
-        border-color: #e0504f;
-      }
+    background: var(--bg);
+    color: var(--text);
 
-      .error-msg {
-        color: #e0504f;
-        font-family: inherit;
-        font-size: 13px;
-        line-height: 1.4;
-        margin: -10px 0 14px;
-        display: none;
-      }
+    font-family: var(--font-sans);
 
-      /* Opções */
-      .row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 28px;
-      }
+    line-height: 1.5;
+  }
 
-      .remember {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+  /* =========================
+     TOPO
+     ========================= */
 
-        font-family: inherit;
-        font-size: 14px;
-        line-height: 1.4;
-        color: #4a4a4a;
+  .topbar {
+    width: 100%;
+    max-width: 1500px;
 
-        cursor: pointer;
-        user-select: none;
-      }
+    padding: 32px 40px;
+  }
 
-      .remember input {
-        width: 18px;
-        height: 18px;
-        border-radius: 4px;
-        accent-color: #3b6df0;
-        cursor: pointer;
-      }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
-      .forgot {
-        font-family: inherit;
-        font-size: 14px;
-        line-height: 1.4;
-        color: #3b6df0;
+    color: var(--text);
 
-        text-decoration: underline;
-        background: none;
-        border: none;
-        cursor: pointer;
-      }
+    font-family: var(--font-serif);
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
 
-      /* Botão principal */
-      .btn-primary {
-        width: 100%;
-        padding: 14px;
+  .logo svg {
+    flex-shrink: 0;
+  }
 
-        background: #3b6df0;
-        color: #fff;
+  /* =========================
+     ÁREA PRINCIPAL
+     ========================= */
 
-        border: none;
-        border-radius: 10px;
+  .card-wrap {
+    flex: 1;
 
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.4;
-        font-weight: 600;
+    width: 100%;
 
-        cursor: pointer;
-        margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        transition:
-          background 0.15s ease,
-          transform 0.05s ease;
-      }
+    padding: 20px 20px 80px;
+  }
 
-      .btn-primary:hover {
-        background: #2f5cd6;
-      }
+  /* =========================
+     CARD
+     ========================= */
 
-      .btn-primary:active {
-        transform: translateY(1px);
-      }
+  .card {
+    width: 100%;
+    max-width: 460px;
 
-      .btn-primary:disabled {
-        background: #9db3f2;
-        cursor: not-allowed;
-      }
+    padding: 48px 52px 44px;
 
-      /* Google */
-      .btn-google {
-        width: 100%;
-        padding: 13px;
+    background: var(--surface);
 
-        background: #fff;
-        color: #1f1f1f;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
 
-        border: 1px solid #d7dae0;
-        border-radius: 10px;
+    box-shadow:
+      0 1px 2px rgba(20, 20, 19, 0.025);
 
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.4;
-        font-weight: 500;
+    animation: card-enter 0.25s ease-out;
+  }
 
-        cursor: pointer;
+  @keyframes card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-        margin-bottom: 14px;
+  /* =========================
+     TEXTO AUXILIAR
+     ========================= */
 
-        transition: background 0.15s ease;
-      }
+  .eyebrow {
+    margin-bottom: 8px;
 
-      .btn-google:hover {
-        background: #f9fafb;
-      }
+    color: var(--text-muted);
 
-      /* Recrutador */
-      .btn-recruiter {
-        width: 100%;
-        padding: 13px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
 
-        background: #fff;
-        color: #1f1f1f;
+    letter-spacing: normal;
+  }
 
-        border: 1px dashed #3b6df0;
-        border-radius: 10px;
+  /* =========================
+     TÍTULO
+     ========================= */
 
-        font-family: inherit;
-        font-size: 14.5px;
-        line-height: 1.4;
-        font-weight: 600;
+  h1 {
+    margin-bottom: 32px;
 
-        cursor: pointer;
+    color: var(--text);
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
+    font-family: var(--font-serif);
 
-        margin-bottom: 24px;
+    font-size: 34px;
+    font-weight: 400;
 
-        transition: background 0.15s ease;
-      }
+    line-height: 1.1;
 
-      .btn-recruiter:hover {
-        background: #eef2ff;
-      }
+    letter-spacing: -0.025em;
+  }
 
-      .btn-recruiter svg {
-        flex-shrink: 0;
-      }
+  /* =========================
+     CAMPOS
+     ========================= */
 
-      /* Rodapé */
-      .footer-text {
-        text-align: center;
+  .field {
+    width: 100%;
 
-        font-family: inherit;
-        font-size: 14px;
-        line-height: 1.5;
+    margin-bottom: 16px;
 
-        color: #6b7280;
-      }
+    padding: 12px 14px;
 
-      .footer-text a {
-        color: #3b6df0;
-        text-decoration: underline;
-        font-weight: 500;
-      }
+    background: var(--surface);
 
-      /* Mensagem do servidor */
-      .server-msg {
-        font-family: inherit;
-        font-size: 13px;
-        line-height: 1.5;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
 
-        text-align: center;
-        margin-bottom: 16px;
+    color: var(--text);
 
-        display: none;
-        padding: 10px;
-        border-radius: 8px;
-      }
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
 
-      .server-msg.error {
-        display: block;
-        background: #fdecea;
-        color: #b3261e;
-      }
+    outline: none;
 
-      .server-msg.success {
-        display: block;
-        background: #e6f4ea;
-        color: #1e7e34;
-      }
-    </style>
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .field::placeholder {
+    color: #99978f;
+  }
+
+  .field:hover {
+    border-color: #c9c7bf;
+  }
+
+  .field:focus {
+    border-color: var(--focus);
+
+    box-shadow:
+      0 0 0 3px rgba(56, 152, 236, 0.12);
+  }
+
+  .field.error {
+    border-color: var(--error);
+  }
+
+  .error-msg {
+    display: none;
+
+    margin: -9px 0 14px;
+
+    color: var(--error);
+
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* =========================
+     OPÇÕES
+     ========================= */
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 28px;
+  }
+
+  .remember {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--text-secondary);
+
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .remember input {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+
+    border-radius: 4px;
+
+    accent-color: var(--primary);
+
+    cursor: pointer;
+  }
+
+  .forgot {
+    padding: 0;
+
+    background: none;
+    border: none;
+
+    color: var(--text-secondary);
+
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+      color 0.15s ease;
+  }
+
+  .forgot:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+
+  .forgot:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* =========================
+     BOTÃO PRINCIPAL
+     ========================= */
+
+  .btn-primary {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 11px 16px;
+
+    margin-bottom: 12px;
+
+    background: var(--primary);
+    color: #fff;
+
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.05s ease;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .btn-primary:disabled {
+    background: #d8a796;
+    border-color: #d8a796;
+
+    cursor: not-allowed;
+  }
+
+  /* =========================
+     GOOGLE
+     ========================= */
+
+  .btn-google {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 14px;
+
+    margin-bottom: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    background: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .btn-google:hover {
+    background: var(--surface-soft);
+    border-color: #c9c7bf;
+  }
+
+  .btn-google:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* =========================
+     RECRUTADOR
+     ========================= */
+
+  .btn-recruiter {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 14px;
+
+    margin-bottom: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    background: var(--primary-soft);
+    color: var(--text);
+
+    border: 1px dashed #d9a391;
+    border-radius: var(--radius-md);
+
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.4;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .btn-recruiter:hover {
+    background: #f5e3dc;
+    border-color: #c96442;
+  }
+
+  .btn-recruiter:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .btn-recruiter svg {
+    flex-shrink: 0;
+  }
+
+  /* =========================
+     RODAPÉ
+     ========================= */
+
+  .footer-text {
+    text-align: center;
+
+    color: var(--text-muted);
+
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .footer-text a {
+    color: var(--text);
+
+    font-weight: 500;
+
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    transition: color 0.15s ease;
+  }
+
+  .footer-text a:hover {
+    color: var(--primary);
+  }
+
+  /* =========================
+     MENSAGEM DO SERVIDOR
+     ========================= */
+
+  .server-msg {
+    display: none;
+
+    margin-bottom: 16px;
+
+    padding: 10px 12px;
+
+    border-radius: var(--radius-md);
+
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    line-height: 1.5;
+
+    text-align: center;
+  }
+
+  .server-msg.error {
+    display: block;
+
+    background: var(--error-bg);
+    color: var(--error);
+
+    border: 1px solid #efcfcc;
+  }
+
+  .server-msg.success {
+    display: block;
+
+    background: var(--success-bg);
+    color: var(--success);
+
+    border: 1px solid #cfe2cf;
+  }
+
+  /* =========================
+     RESPONSIVIDADE
+     ========================= */
+
+  @media (max-width: 700px) {
+    .topbar {
+      padding: 24px;
+    }
+
+    .card-wrap {
+      align-items: flex-start;
+
+      padding:
+        20px 16px
+        48px;
+    }
+
+    .card {
+      max-width: 440px;
+
+      padding:
+        40px 28px
+        36px;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .topbar {
+      padding: 20px;
+    }
+
+    .logo {
+      font-size: 19px;
+    }
+
+    .card-wrap {
+      padding:
+        12px 12px
+        36px;
+    }
+
+    .card {
+      padding:
+        32px 22px
+        30px;
+
+      border-radius: var(--radius-lg);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 28px;
+    }
+
+    .row {
+      align-items: flex-start;
+      flex-direction: column;
+
+      gap: 12px;
+
+      margin-bottom: 24px;
+    }
+
+    .forgot {
+      align-self: flex-end;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .card {
+      padding:
+        28px 18px
+        26px;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    .field,
+    .btn-primary,
+    .btn-google,
+    .btn-recruiter {
+      font-size: 13.5px;
+    }
+  }
+
+  /* =========================
+     REDUÇÃO DE MOVIMENTO
+     ========================= */
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
   </head>
 
   <body>
