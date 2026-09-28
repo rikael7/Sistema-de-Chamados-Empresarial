@@ -5,546 +5,523 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CallSys — Criar conta</title>
     <style>
-  :root {
-    --bg: #f7f6f2;
-    --surface: #ffffff;
-    --text: #252421;
-    --muted: #77736c;
-    --border: #dedbd4;
-    --border-hover: #c8c4bb;
-    --accent: #d97757;
-    --accent-hover: #c96748;
-    --accent-text: #ffffff;
+      :root {
+        --bg: #f7f6f2;
+        --surface: #ffffff;
+        --text: #252421;
+        --muted: #77736c;
+        --border: #dedbd4;
+        --border-hover: #c8c4bb;
+        --accent: #d97757;
+        --accent-hover: #c96748;
+        --accent-text: #ffffff;
 
-    --error: #b94a3c;
-    --error-bg: #fdf1ee;
+        --error: #b94a3c;
+        --error-bg: #fdf1ee;
 
-    --success: #36745b;
-    --success-bg: #edf7f1;
+        --success: #36745b;
+        --success-bg: #edf7f1;
 
-    --radius: 12px;
-  }
+        --radius: 12px;
+      }
 
-  * {
-    box-sizing: border-box;
-  }
+      * {
+        box-sizing: border-box;
+      }
 
-  html {
-    min-height: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+      html {
+        min-height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
 
-  body {
-    margin: 0;
-    min-height: 100vh;
+      body {
+        margin: 0;
+        min-height: 100vh;
 
-    background: var(--bg);
-    color: var(--text);
+        background: var(--bg);
+        color: var(--text);
 
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Helvetica,
-      Arial,
-      sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-    padding: 32px 20px;
-  }
+        padding: 32px 20px;
+      }
 
-  /* =========================
+      /* =========================
      CONTAINER
      ========================= */
 
-  .card-wrap {
-    width: 100%;
-    min-height: calc(100vh - 64px);
+      .card-wrap {
+        width: 100%;
+        min-height: calc(100vh - 64px);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  .card {
-    width: 100%;
-    max-width: 430px;
+      .card {
+        width: 100%;
+        max-width: 760px;
 
-    background: var(--surface);
+        background: var(--surface);
 
-    padding: 42px 40px 36px;
+        padding: 42px 40px 36px;
 
-    border: 1px solid rgba(37, 36, 33, 0.08);
-    
-    border-radius: 16px;
+        border: 1px solid rgba(37, 36, 33, 0.08);
 
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.03),
-      0 10px 35px rgba(0, 0, 0, 0.145);
-    
-  }
+        border-radius: 16px;
 
-  /* =========================
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.03),
+          0 10px 35px rgba(0, 0, 0, 0.145);
+      }
+
+      /* =========================
      TITLE
      ========================= */
 
-  .card h1 {
-    margin: 0 0 30px;
+      .card h1 {
+        margin: 0 0 30px;
 
-    color: var(--text);
+        color: var(--text);
 
-    font-family:
-      Georgia,
-      "Times New Roman",
-      serif;
+        font-family: Georgia, "Times New Roman", serif;
 
-    font-size: 31px;
-    font-weight: 400;
-    line-height: 1.18;
-    letter-spacing: -0.7px;
+        font-size: 31px;
+        font-weight: 400;
+        line-height: 1.18;
+        letter-spacing: -0.7px;
 
-    text-align: center;
-  }
+        text-align: center;
+      }
 
-  /* =========================
+      /* =========================
      SERVER MESSAGE
      ========================= */
 
-  .server-msg {
-    display: none;
+      .server-msg {
+        display: none;
 
-    margin: 0 0 18px;
-    padding: 11px 13px;
+        margin: 0 0 18px;
+        padding: 11px 13px;
 
-    border-radius: 9px;
+        border-radius: 9px;
 
-    font-size: 14px;
-    line-height: 1.45;
-  }
+        font-size: 14px;
+        line-height: 1.45;
+      }
 
-  .server-msg.success {
-    display: block;
+      .server-msg.success {
+        display: block;
 
-    color: var(--success);
-    background: var(--success-bg);
-    border: 1px solid #d7eadf;
-  }
+        color: var(--success);
+        background: var(--success-bg);
+        border: 1px solid #d7eadf;
+      }
 
-  .server-msg.error {
-    display: block;
+      .server-msg.error {
+        display: block;
 
-    color: var(--error);
-    background: var(--error-bg);
-    border: 1px solid #f0d5cf;
-  }
+        color: var(--error);
+        background: var(--error-bg);
+        border: 1px solid #f0d5cf;
+      }
 
-  /* =========================
+      /* =========================
      FORM
      ========================= */
 
-  #signupForm {
-    width: 100%;
-  }
+      #signupForm {
+        width: 100%;
+      }
 
-  /* =========================
+      /* =========================
      INPUTS
      ========================= */
 
-  .field {
-    width: 100%;
-    height: 48px;
+      .field {
+        width: 100%;
+        height: 48px;
 
-    margin: 0 0 7px;
-    padding: 0 15px;
+        margin: 0 0 7px;
+        padding: 0 15px;
 
-    appearance: none;
+        appearance: none;
 
-    border: 1px solid var(--border);
-    border-radius: 9px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
 
-    background: #fff;
-    color: var(--text);
+        background: #fff;
+        color: var(--text);
 
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Helvetica,
-      Arial,
-      sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
 
-    font-size: 15px;
-    line-height: 1;
+        font-size: 15px;
+        line-height: 1;
 
-    outline: none;
+        outline: none;
 
-    transition:
-      border-color 150ms ease,
-      box-shadow 150ms ease,
-      background 150ms ease;
-  }
+        transition:
+          border-color 150ms ease,
+          box-shadow 150ms ease,
+          background 150ms ease;
+      }
 
-  .field::placeholder {
-    color: #918d85;
-    opacity: 1;
-  }
+      .field::placeholder {
+        color: #918d85;
+        opacity: 1;
+      }
 
-  .field:hover {
-    border-color: var(--border-hover);
-  }
+      .field:hover {
+        border-color: var(--border-hover);
+      }
 
-  .field:focus {
-    border-color: #b9b4aa;
+      .field:focus {
+        border-color: #b9b4aa;
 
-    box-shadow:
-      0 0 0 3px rgba(217, 119, 87, 0.10);
-  }
+        box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+      }
 
-  .field.error {
-    border-color: var(--error);
-    background: #fffdfc;
-  }
+      .field.error {
+        border-color: var(--error);
+        background: #fffdfc;
+      }
 
-  .field.error:focus {
-    box-shadow:
-      0 0 0 3px rgba(185, 74, 60, 0.10);
-  }
+      .field.error:focus {
+        box-shadow: 0 0 0 3px rgba(185, 74, 60, 0.1);
+      }
 
-  /* =========================
+      /* =========================
      HINT
      ========================= */
 
-  .hint {
-    margin: 1px 0 17px;
-    padding-left: 2px;
+      .hint {
+        margin: 1px 0 17px;
+        padding-left: 2px;
 
-    color: var(--muted);
+        color: var(--muted);
 
-    font-size: 12.5px;
-    line-height: 1.4;
-  }
+        font-size: 12.5px;
+        line-height: 1.4;
+      }
 
-  /* =========================
+      /* =========================
      ERRORS
      ========================= */
 
-  .error-msg {
-    display: none;
+      .error-msg {
+        display: none;
 
-    margin: 0 0 14px;
-    padding-left: 2px;
+        margin: 0 0 14px;
+        padding-left: 2px;
 
-    color: var(--error);
+        color: var(--error);
 
-    font-size: 12.5px;
-    line-height: 1.4;
-  }
+        font-size: 12.5px;
+        line-height: 1.4;
+      }
 
-  /* Quando o erro aparece antes do próximo campo */
-  .field.error + .error-msg {
-    margin-bottom: 14px;
-  }
+      /* Quando o erro aparece antes do próximo campo */
+      .field.error + .error-msg {
+        margin-bottom: 14px;
+      }
 
-  /* =========================
+      /* =========================
      TERMS
      ========================= */
 
-  .row {
-    margin-top: 5px;
-    margin-bottom: 22px;
-  }
+      .row {
+        margin-top: 5px;
+        margin-bottom: 22px;
+      }
 
-  .terms {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
+      .terms {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
 
-    color: #6f6b64;
+        color: #6f6b64;
 
-    font-size: 13px;
-    line-height: 1.45;
+        font-size: 13px;
+        line-height: 1.45;
 
-    cursor: pointer;
-    user-select: none;
-  }
+        cursor: pointer;
+        user-select: none;
+      }
 
-  .terms input {
-    width: 16px;
-    height: 16px;
+      .terms input {
+        width: 16px;
+        height: 16px;
 
-    margin: 1px 0 0;
+        margin: 1px 0 0;
 
-    flex: 0 0 auto;
+        flex: 0 0 auto;
 
-    appearance: none;
+        appearance: none;
 
-    background: #fff;
+        background: #fff;
 
-    border: 1px solid #c9c5bd;
-    border-radius: 4px;
+        border: 1px solid #c9c5bd;
+        border-radius: 4px;
 
-    cursor: pointer;
+        cursor: pointer;
 
-    position: relative;
+        position: relative;
 
-    transition:
-      background 150ms ease,
-      border-color 150ms ease;
-  }
+        transition:
+          background 150ms ease,
+          border-color 150ms ease;
+      }
 
-  .terms input:hover {
-    border-color: #a9a49b;
-  }
+      .terms input:hover {
+        border-color: #a9a49b;
+      }
 
-  .terms input:checked {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
+      .terms input:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
 
-  .terms input:checked::after {
-    content: "";
+      .terms input:checked::after {
+        content: "";
 
-    position: absolute;
+        position: absolute;
 
-    width: 4px;
-    height: 8px;
+        width: 4px;
+        height: 8px;
 
-    left: 5px;
-    top: 2px;
+        left: 5px;
+        top: 2px;
 
-    border-right: 2px solid white;
-    border-bottom: 2px solid white;
+        border-right: 2px solid white;
+        border-bottom: 2px solid white;
 
-    transform: rotate(45deg);
-  }
+        transform: rotate(45deg);
+      }
 
-  .terms a {
-    color: var(--text);
+      .terms a {
+        color: var(--text);
 
-    text-decoration: underline;
-    text-decoration-color: #bcb8b0;
-    text-underline-offset: 2px;
+        text-decoration: underline;
+        text-decoration-color: #bcb8b0;
+        text-underline-offset: 2px;
 
-    transition:
-      color 150ms ease,
-      text-decoration-color 150ms ease;
-  }
+        transition:
+          color 150ms ease,
+          text-decoration-color 150ms ease;
+      }
 
-  .terms a:hover {
-    color: var(--accent);
-    text-decoration-color: var(--accent);
-  }
+      .terms a:hover {
+        color: var(--accent);
+        text-decoration-color: var(--accent);
+      }
 
-  /* =========================
+      /* =========================
      PRIMARY BUTTON
      ========================= */
 
-  .btn-primary {
-    width: 100%;
-    height: 48px;
+      .btn-primary {
+        width: 100%;
+        height: 48px;
 
-    border: 0;
-    border-radius: 9px;
+        border: 0;
+        border-radius: 9px;
 
-    background: var(--accent);
-    color: var(--accent-text);
+        background: var(--accent);
+        color: var(--accent-text);
 
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Helvetica,
-      Arial,
-      sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
 
-    font-size: 14px;
-    font-weight: 600;
+        font-size: 14px;
+        font-weight: 600;
 
-    cursor: pointer;
+        cursor: pointer;
 
-    transition:
-      background 150ms ease,
-      transform 100ms ease,
-      opacity 150ms ease;
-  }
+        transition:
+          background 150ms ease,
+          transform 100ms ease,
+          opacity 150ms ease;
+      }
 
-  .btn-primary:hover {
-    background: var(--accent-hover);
-  }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+      }
 
-  .btn-primary:active {
-    transform: translateY(1px);
-  }
+      .btn-primary:active {
+        transform: translateY(1px);
+      }
 
-  .btn-primary:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-    transform: none;
-  }
+      .btn-primary:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-  /* =========================
+      /* =========================
      GOOGLE BUTTON
      ========================= */
 
-  .btn-google {
-    width: 100%;
-    height: 48px;
+      .btn-google {
+        width: 100%;
+        height: 48px;
 
-    margin-top: 11px;
+        margin-top: 11px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
 
-    border: 1px solid var(--border);
-    border-radius: 9px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
 
-    background: #fff;
-    color: #35332f;
+        background: #fff;
+        color: #35332f;
 
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Helvetica,
-      Arial,
-      sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
 
-    font-size: 14px;
-    font-weight: 500;
+        font-size: 14px;
+        font-weight: 500;
 
-    cursor: pointer;
+        cursor: pointer;
 
-    transition:
-      background 150ms ease,
-      border-color 150ms ease,
-      box-shadow 150ms ease;
-  }
+        transition:
+          background 150ms ease,
+          border-color 150ms ease,
+          box-shadow 150ms ease;
+      }
 
-  .btn-google:hover {
-    background: #faf9f6;
-    border-color: var(--border-hover);
+      .btn-google:hover {
+        background: #faf9f6;
+        border-color: var(--border-hover);
 
-    box-shadow:
-      0 2px 7px rgba(0, 0, 0, 0.04);
-  }
+        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+      }
 
-  .btn-google:active {
-    background: #f5f3ef;
-  }
+      .btn-google:active {
+        background: #f5f3ef;
+      }
 
-  .btn-google svg {
-    flex: 0 0 auto;
-  }
+      .btn-google svg {
+        flex: 0 0 auto;
+      }
 
-  /* =========================
+      /* =========================
      FOOTER
      ========================= */
 
-  .footer-text {
-    margin-top: 27px;
+      .footer-text {
+        margin-top: 27px;
 
-    color: #817d75;
+        color: #817d75;
 
-    font-size: 13px;
-    line-height: 1.5;
+        font-size: 13px;
+        line-height: 1.5;
 
-    text-align: center;
-  }
+        text-align: center;
+      }
 
-  .footer-text a {
-    color: var(--text);
+      .footer-text a {
+        color: var(--text);
 
-    font-weight: 500;
+        font-weight: 500;
 
-    text-decoration: underline;
-    text-decoration-color: #bbb7af;
-    text-underline-offset: 2px;
+        text-decoration: underline;
+        text-decoration-color: #bbb7af;
+        text-underline-offset: 2px;
 
-    transition:
-      color 150ms ease,
-      text-decoration-color 150ms ease;
-  }
+        transition:
+          color 150ms ease,
+          text-decoration-color 150ms ease;
+      }
 
-  .footer-text a:hover {
-    color: var(--accent);
-    text-decoration-color: var(--accent);
-  }
+      .footer-text a:hover {
+        color: var(--accent);
+        text-decoration-color: var(--accent);
+      }
 
-  /* =========================
+      /* =========================
      MOBILE
      ========================= */
 
-  @media (max-width: 600px) {
-    body {
-      padding: 0;
+      @media (max-width: 600px) {
+        body {
+          padding: 0;
 
-      align-items: flex-start;
+          align-items: flex-start;
 
-      background: var(--surface);
-    }
+          background: var(--surface);
+        }
 
-    .card-wrap {
-      min-height: 100vh;
+        .card-wrap {
+          min-height: 100vh;
 
-      align-items: flex-start;
+          align-items: flex-start;
 
-      padding: 34px 20px 28px;
-    }
+          padding: 34px 20px 28px;
+        }
 
-    .card {
-      max-width: 430px;
+        .card {
+          max-width: 430px;
 
-      padding: 28px 0 24px;
+          padding: 28px 0 24px;
 
-      border: 0;
-      border-radius: 0;
+          border: 0;
+          border-radius: 0;
 
-      box-shadow: none;
-    }
+          box-shadow: none;
+        }
 
-    .card h1 {
-      margin-bottom: 28px;
+        .card h1 {
+          margin-bottom: 28px;
 
-      font-size: 29px;
-    }
-  }
+          font-size: 29px;
+        }
+      }
 
-  @media (max-width: 380px) {
-    .card-wrap {
-      padding-left: 16px;
-      padding-right: 16px;
-    }
+      @media (max-width: 380px) {
+        .card-wrap {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
 
-    .card h1 {
-      font-size: 27px;
-    }
+        .card h1 {
+          font-size: 27px;
+        }
 
-    .field,
-    .btn-primary,
-    .btn-google {
-      height: 46px;
-    }
-  }
+        .field,
+        .btn-primary,
+        .btn-google {
+          height: 46px;
+        }
+      }
 
-  /* =========================
+      /* =========================
      REDUCED MOTION
      ========================= */
 
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      transition: none !important;
-      animation: none !important;
-    }
-  }
-</style>
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="card-wrap">

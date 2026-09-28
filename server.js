@@ -190,6 +190,10 @@ app.get("/email-verificado", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "verificado.html"));
 });
 
+app.get("/verify", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "verifyemail.html"));
+});
+
 app.get("/404", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "404.html"));
 });
