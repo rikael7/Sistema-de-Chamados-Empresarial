@@ -2,31 +2,30 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // Teste de conexão ao iniciar
-pool.connect()
-    .then(client => {
-        console.log("✅ PostgreSQL conectado com sucesso!");
+pool
+  .connect()
+  .then((client) => {
+    console.log(" PostgreSQL conectado com sucesso!");
 
-        client.release();
-    })
-    .catch(err => {
-        console.error("❌ Erro ao conectar no PostgreSQL:");
-        console.error(err.message);
-    });
-
+    client.release();
+  })
+  .catch((err) => {
+    console.error(" Erro ao conectar no PostgreSQL:");
+    console.error(err.message);
+  });
 
 // Log de erros inesperados do pool
 pool.on("error", (err) => {
-    console.error("❌ Erro inesperado no pool PostgreSQL:");
-    console.error(err.message);
+  console.error(" Erro inesperado no pool PostgreSQL:");
+  console.error(err.message);
 });
-
 
 async function initDb() {
   await pool.query(`
@@ -39,7 +38,7 @@ async function initDb() {
     );
   `);
   console.log('Tabela "messages" pronta.');
- 
+
   // -------- Central de Chamados --------
   await pool.query(`
     CREATE TABLE IF NOT EXISTS chamados (
@@ -58,7 +57,7 @@ async function initDb() {
       atualizado_em   TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
- 
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS chamado_anexos (
       id              SERIAL PRIMARY KEY,
@@ -68,7 +67,7 @@ async function initDb() {
       criado_em       TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
- 
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS chamado_comentarios (
       id              SERIAL PRIMARY KEY,
@@ -78,13 +77,23 @@ async function initDb() {
       criado_em       TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
- 
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_chamados_status ON chamados(status);`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_chamados_categoria ON chamados(categoria);`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_chamados_prioridade ON chamados(prioridade);`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_anexos_chamado_id ON chamado_anexos(chamado_id);`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_comentarios_chamado_id ON chamado_comentarios(chamado_id);`);
- 
+
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_chamados_status ON chamados(status);`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_chamados_categoria ON chamados(categoria);`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_chamados_prioridade ON chamados(prioridade);`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_anexos_chamado_id ON chamado_anexos(chamado_id);`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_comentarios_chamado_id ON chamado_comentarios(chamado_id);`,
+  );
+
   await pool.query(`
     CREATE OR REPLACE FUNCTION set_atualizado_em()
     RETURNS TRIGGER AS $$
@@ -94,24 +103,21 @@ async function initDb() {
     END;
     $$ LANGUAGE plpgsql;
   `);
- 
-  await pool.query(`DROP TRIGGER IF EXISTS trg_chamados_atualizado_em ON chamados;`);
+
+  await pool.query(
+    `DROP TRIGGER IF EXISTS trg_chamados_atualizado_em ON chamados;`,
+  );
   await pool.query(`
     CREATE TRIGGER trg_chamados_atualizado_em
       BEFORE UPDATE ON chamados
       FOR EACH ROW
       EXECUTE FUNCTION set_atualizado_em();
   `);
- 
+
   console.log('Tabelas de "chamados" prontas.');
 }
- 
 
- 
-
-
-module.exports = { pool, initDb};
-
+module.exports = { pool, initDb };
 
 // antes do websocket
 // module.exports = pool;

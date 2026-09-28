@@ -5,9 +5,6 @@ const dns = require('dns').promises;
 //biblioteca para bloquear email temporário
 const { isDisposableEmail } = require('disposable-email-domains-js');
 
-
-
-
 async function domainExists(email) {
     const domain = email.split('@')[1];
 
@@ -32,7 +29,6 @@ async function domainExists(email) {
 
     return false;
 }
-
 
 // e interrompe a requisição com 400 se houver erro.
 function handleValidationErrors(req, res, next) {

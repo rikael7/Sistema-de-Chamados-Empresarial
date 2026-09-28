@@ -1,18 +1,3 @@
-// middleware/validate.js
-
-// Schema por campo:
-// {
-//   campo: {
-//     required: true/false,
-//     type: 'string' | 'number',
-//     minLength: number,
-//     maxLength: number,
-//     min: number,        // para type: 'number'
-//     max: number,        // para type: 'number'
-//     enum: [ ... ]        // valores permitidos
-//   }
-// }
-
 function chamadovalidator(schema) {
   return (req, res, next) => {
     const erros = [];

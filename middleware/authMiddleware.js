@@ -44,12 +44,6 @@ function isAuthenticated(req, res, next) {
   if (req.session && req.session.userId) {
     return next();
   }
-
-  // return res.status(401).json({
-  //     error: 'Não autenticado. Faça login para continuar.'
-  // });
-
-  // manda para a rota de login
   return res.redirect("/login");
 }
 

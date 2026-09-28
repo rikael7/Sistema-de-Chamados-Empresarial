@@ -12,6 +12,9 @@ const passport = require("./config/passport");
 //  --------------------
 
 const app = express();
+
+app.set("trust proxy", 1);
+
 const PORT = process.env.PORT || 3000;
 
 // ===============
